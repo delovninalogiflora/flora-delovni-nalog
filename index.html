@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Delovni nalog">
+    <meta name="format-detection" content="telephone=no">
+    <title>FLORA & SPORT - Delovni nalog v8.3</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
+    <!-- Flatpickr for date picker with Monday start -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/sl.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background-color: #f5f5f5; -webkit-text-size-adjust: 100%; }
+        input, select, textarea { -webkit-appearance: none; appearance: none; border-radius: 8px; font-size: 16px; padding: 12px; border: 1px solid #d1d5db; width: 100%; background-color: white; }
+        select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 35px; }
+        input[type="checkbox"] { -webkit-appearance: checkbox; appearance: checkbox; width: 20px; height: 20px; margin-right: 8px; }
+        button { -webkit-appearance: none; appearance: none; padding: 12px 24px; border-radius: 8px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; min-height: 44px; }
+        .container { max-width: 896px; margin: 0 auto; padding: 16px; }
+        .header { background: #85b545; color: white; padding: 24px; text-align: center; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; color: #374151; }
+        .section-header { background-color: #e5e7eb; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+        .checkbox-group { border: 1px solid #d1d5db; border-radius: 8px; padding: 12px; }
+        .checkbox-item { display: flex; align-items: center; padding: 8px 0; }
+        .checkbox-with-input { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .row-3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .time-input { display: flex; gap: 4px; align-items: center; }
+        .time-input input { width: 60px; text-align: center; }
+        .time-input span { font-size: 14px; color: #666; }
+        .priority-stroj { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 12px; margin-bottom: 8px; }
+        .priority-stroj-label { font-weight: 600; color: #166534; margin-bottom: 8px; display: block; }
+        @media (max-width: 640px) { .row { grid-template-columns: 1fr; } .row-3 { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const { useState, useEffect, useRef } = React;
+const e = React.createElement;
+
+const GOOGLE_SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbyOe1qFKy8MlmmO1_utR8rDSspGdw_IC4RL7B_NE4clp0gOvJ10u4MUsqKEIj4DiYWJ/exec';
+
+function DelovniNalogApp() {
+    const datumRef = useRef(null);
+    const flatpickrInstance = useRef(null);
+    const [formData, setFormData] = useState({
+        narocnik: 'Mestna Občina Kranj',
+        narocnikDrugo: '',
+        datum: '',
+        storitev: '',
+        storitevDrugo: '',
+        storitevVisine: Array(5).fill().map(() => ({ selected: false, kolicina: '' })),
+        storitevGlobine: Array(5).fill().map(() => ({ selected: false, kolicina: '' })),
+        storitevKolicina: '',
+        storitevParki: [],
+        storitevPasjiKosi: [],
+        obmocjeKoncano: Array(15).fill().map(() => ({ obmocje: '', drugo: '' })),
+        obmocjeNedokoncano: Array(15).fill().map(() => ({ obmocje: '', drugo: '' })),
+        delavci: Array(15).fill().map(() => ({ ime: '', ure: '', minute: '', drugaIme: '' })),
+        vozila: Array(5).fill().map(() => ({ vozilo: '', km: '', drugaReg: '' })),
+        priorityStroji: {},
+        dodatniStroji: Array(5).fill().map(() => ({ naziv: '', ure: '', minute: '', drugaNaziv: '' })),
+        materiali: Array(5).fill().map(() => ({ material: '', vrsta: '', drugMaterial: '', kolicina: '', enota: '' })),
+        odpadki: Array(2).fill().map(() => ({ vrsta: '', drugaVrsta: '', kolicina: '', enota: '' })),
+        slike: [],
+        opombe: '',
+        podpisOdgovornega: '',
+        podpisDrugo: ''
+    });
+
+    const [statusMessage, setStatusMessage] = useState({ text: '', type: '' });
+    const [validationErrors, setValidationErrors] = useState([]);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isSaved, setIsSaved] = useState(false);
+
+    // Initialize flatpickr for date input
+    useEffect(() => {
+        if (datumRef.current && !flatpickrInstance.current) {
+            flatpickrInstance.current = flatpickr(datumRef.current, {
+                locale: 'sl',
+                dateFormat: 'Y-m-d',
+                allowInput: true,
+                onChange: (selectedDates, dateStr) => {
+                    updateField('datum', dateStr);
+                }
+            });
+        }
+        return () => {
+            if (flatpickrInstance.current) {
+                flatpickrInstance.current.destroy();
+                flatpickrInstance.current = null;
+            }
+        };
+    }, []);
+
+    const narocniki = ['Mestna Občina Kranj', 'Drugo'];
+
+    // POENOSTAVLJENE STORITVE (brez pomišljajev)
+    const storitve = [
+        'mok01 Sajenje cvetja v grede',
+        'mok02 Sajenje trajnic in vrtnic',
+        'mok03 Zasaditev korit',
+        'mok04-06 Oskrba cvetja in trajnic',
+        'mok07-09 Oskrba grmovnic in živih mej',
+        'mok10 Zasaditev živih mej',
+        'mok11 Sajenje grmovnic',
+        'mok12 Popravilo zelenic',
+        'mok13 Dobava plodne zemlje',
+        'mok15 Setev trave',
+        'mok16 Odstranitev grmovnic',
+        'mok17 Odstranitev invazivk',
+        'mok18 Sezonsko prestavljanje korit',
+        'mok20 Obrez dreves',
+        'mok21 Posek dreves',
+        'mok22 Odščip vej',
+        'mok23 Sajenje dreves',
+        'mok24 Odstranitev panjev',
+        'mok25 Zalivanje dreves',
+        'mok26 Arboristični pregled',
+        'mok27 Spomladansko čiščenje',
+        'mok28 Jesensko čiščenje listja',
+        'mok29 Košnja zelenih površin',
+        'mok30 Odvoz odreza',
+        'mok32a Vzdrževanje igral',
+        'mok32b Vzdrževanje urbane opreme',
+        'mok34 Čiščenje pasjih košev',
+        'mok35 Vzdrževanje čistoče',
+        'mok36 Nepredvidena dela',
+        'Drugo'
+    ];
+
+    const visinaOpcije = ['do 5 m', '5-10 m', '10-15 m', '15-20 m', 'nad 20 m'];
+    const globinaOpcije = ['do 10 cm', 'do 20 cm', 'do 30 cm', 'do 40 cm', 'nad 40 cm'];
+    const parkiOpcije = ['Prešernov gaj', 'Park slovenske himne', 'Otroško igrišče Krtek', 'Otroško igrišče Savica', 'Bleiweisov park'];
+    const pasjiKosiOpcije = ['7 dni', '14 dni'];
+
+    const storitveKolicine = {
+        'mok10 Zasaditev živih mej': 'm',
+        'mok11 Sajenje grmovnic': 'm',
+        'mok12 Popravilo zelenic': 'm²',
+        'mok13 Dobava plodne zemlje': 'm³',
+        'mok15 Setev trave': 'm²',
+        'mok16 Odstranitev grmovnic': 'kos',
+        'mok17 Odstranitev invazivk': 'm³'
+    };
+
+    const obmocja = [
+        '1. Ljubljanska', '2. Center', '3. Vodovodni stolp', '4. Šorlijevo',
+        '5. Zlato polje', '6. Planina', '7. Planina II', '8. Planina III',
+        '9. Primskovo', '10. Čirče', '11. Stražišče - Besnica',
+        '12. Drulovka', '13. Savska', '14. Rudija Šeliga', '15. Brdo', 'Drugo'
+    ];
+
+    const delavciList = [
+        'Anja STANONIK', 'Bine KUMER', 'Boštjan BIZJAK', 'David ZAVRL',
+        'Dejan PETKOVSKI', 'Mitja POTOČNIK', 'Robert ERDELJEC', 'Simon REPNIK',
+        'Uroš PINTAR', 'Zoran MIČANOVIĆ', 'Zoran STRUPI',
+        'PAUNOVSKI 1', 'PAUNOVSKI 2', 'PAUNOVSKI 3', 'PAUNOVSKI 4', 'Drugo'
+    ];
+
+    const vozilaList = [
+        'KR AA-131', 'KR AF-471', 'KR DK-834', 'KR GS-288', 'KR JR-085',
+        'KR LH-350', 'KR MA-821', 'KR RH-013', 'KR TL-851', 'KR VL-155', 'Drugo'
+    ];
+
+    // RAZŠIRJEN SEZNAM STROJEV (vključno z vsemi iz nepredvidenih del)
+    const strojiList = [
+        'Agregat', 'Avto brez delavca', 'Dvižna košara', 'El. orodje', 'Freza finišer',
+        'Freza za štore', 'Komunalna kosilnica', 'Mini bager', 'Mlin za veje',
+        'Motorna freza', 'Motorna kosa', 'Motorna žaga', 'Motorne škarje',
+        'Motorni pihalnik', 'Odvoz odpadkov', 'Profesionalna komunalna kosilnica',
+        'Ročni pihalnik', 'Samohodna kosilnica', 'Sejalnica za travo', 'Sesalec listja',
+        'Tovorno vozilo do 3,5 ton', 'Tovorno vozilo do 7,5 ton', 'Tovorno vozilo nad 7,5 ton',
+        'Traktor s prikolico', 'Viličar', 'Višinski obrezovalnik', 'Drugo'
+    ];
+
+    // PRIORITETNI STROJI ZA VSAKO STORITEV
+    const storitevStrojiMapping = {
+        'mok01 Sajenje cvetja v grede': ['Ročni pihalnik', 'Traktor s prikolico'],
+        'mok02 Sajenje trajnic in vrtnic': ['Ročni pihalnik', 'Traktor s prikolico'],
+        'mok03 Zasaditev korit': ['Ročni pihalnik', 'Traktor s prikolico', 'Viličar'],
+        'mok04-06 Oskrba cvetja in trajnic': ['Ročni pihalnik', 'Motorne škarje', 'Traktor s prikolico'],
+        'mok07-09 Oskrba grmovnic in živih mej': ['Ročni pihalnik', 'Motorne škarje', 'Motorna žaga', 'Višinski obrezovalnik', 'Traktor s prikolico'],
+        'mok10 Zasaditev živih mej': ['Ročni pihalnik', 'Mini bager', 'Sejalnica za travo', 'Traktor s prikolico'],
+        'mok11 Sajenje grmovnic': ['Ročni pihalnik', 'Mini bager', 'Traktor s prikolico'],
+        'mok12 Popravilo zelenic': ['Ročni pihalnik', 'Sejalnica za travo', 'Motorna freza', 'Traktor s prikolico'],
+        'mok13 Dobava plodne zemlje': ['Ročni pihalnik', 'Traktor s prikolico', 'Mini bager'],
+        'mok15 Setev trave': ['Ročni pihalnik', 'Sejalnica za travo', 'Freza finišer', 'Motorna freza', 'Traktor s prikolico'],
+        'mok16 Odstranitev grmovnic': ['Ročni pihalnik', 'Mini bager', 'Motorna žaga', 'Motorne škarje', 'Traktor s prikolico'],
+        'mok17 Odstranitev invazivk': ['Ročni pihalnik', 'Mini bager', 'Motorna žaga', 'Motorne škarje', 'Traktor s prikolico'],
+        'mok18 Sezonsko prestavljanje korit': ['Ročni pihalnik', 'Traktor s prikolico', 'Viličar'],
+        'mok20 Obrez dreves': ['Ročni pihalnik', 'Dvižna košara', 'Motorna žaga', 'Motorne škarje', 'Višinski obrezovalnik', 'Mlin za veje', 'Traktor s prikolico'],
+        'mok21 Posek dreves': ['Ročni pihalnik', 'Dvižna košara', 'Motorna žaga', 'Motorne škarje', 'Mlin za veje', 'Traktor s prikolico'],
+        'mok22 Odščip vej': ['Ročni pihalnik', 'Dvižna košara', 'Motorna žaga', 'Motorne škarje', 'Mlin za veje', 'Traktor s prikolico'],
+        'mok23 Sajenje dreves': ['Ročni pihalnik', 'Mini bager', 'Traktor s prikolico'],
+        'mok24 Odstranitev panjev': ['Ročni pihalnik', 'Motorna freza', 'Freza za štore'],
+        'mok25 Zalivanje dreves': ['Ročni pihalnik', 'Traktor s prikolico'],
+        'mok26 Arboristični pregled': ['Ročni pihalnik', 'Dvižna košara', 'Višinski obrezovalnik'],
+        'mok27 Spomladansko čiščenje': ['Ročni pihalnik', 'Motorni pihalnik', 'Sesalec listja', 'Traktor s prikolico'],
+        'mok28 Jesensko čiščenje listja': ['Ročni pihalnik', 'Motorni pihalnik', 'Sesalec listja', 'Traktor s prikolico'],
+        'mok29 Košnja zelenih površin': ['Ročni pihalnik', 'Komunalna kosilnica', 'Samohodna kosilnica', 'Motorna kosa', 'Traktor s prikolico'],
+        'mok30 Odvoz odreza': ['Ročni pihalnik', 'Traktor s prikolico', 'Odvoz odpadkov'],
+        'mok32a Vzdrževanje igral': ['Ročni pihalnik', 'El. orodje', 'Agregat'],
+        'mok32b Vzdrževanje urbane opreme': ['Ročni pihalnik', 'El. orodje', 'Agregat'],
+        'mok34 Čiščenje pasjih košev': ['Ročni pihalnik'],
+        'mok35 Vzdrževanje čistoče': ['Ročni pihalnik', 'Sesalec listja', 'Traktor s prikolico'],
+        'mok36 Nepredvidena dela': ['Ročni pihalnik', 'Viličar', 'Mini bager', 'Traktor s prikolico']
+    };
+
+    // MATERIALI z dodanimi Vrečke, Vrečke v roli, Filc, Zastirka
+    const materialiList = ['Drobni material', 'Filc', 'Gnojilo', 'Količki', 'Kompost', 'Mivka', 'Pesek', 'Polovičke', 'Travno seme', 'Vrečke', 'Vrečke v roli', 'Zastirka', 'Zemlja', 'Drugo'];
+
+    // Materiali za določene storitve (prvi na seznamu)
+    const getMaterialiForStoritev = () => {
+        if (formData.storitev === 'mok34 Čiščenje pasjih košev' ||
+            formData.storitev === 'mok35 Vzdrževanje čistoče') {
+            return ['Vrečke', 'Vrečke v roli', ...materialiList.filter(m => m !== 'Vrečke' && m !== 'Vrečke v roli')];
+        }
+        return materialiList;
+    };
+
+    // Odpadki
+    const odpadkiList = ['Invazivke', 'Listje', 'Mivka', 'Pesek', 'Trava', 'Veje', 'Vreče', 'Zemlja', 'Drugo'];
+
+    // Odpadki za določene storitve (Vreče prvi)
+    const getOdpadkiForStoritev = () => {
+        if (formData.storitev === 'mok34 Čiščenje pasjih košev' ||
+            formData.storitev === 'mok35 Vzdrževanje čistoče') {
+            return ['Vreče', ...odpadkiList.filter(o => o !== 'Vreče')];
+        }
+        return odpadkiList;
+    };
+
+    const updateField = (field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    // Pretvorba ur in minut v decimalno obliko
+    const timeToDecimal = (ure, minute) => {
+        const h = parseFloat(ure) || 0;
+        const m = parseFloat(minute) || 0;
+        return (h + m / 60).toFixed(2);
+    };
+
+    const togglePark = (park) => {
+        setFormData(prev => {
+            const newParki = prev.storitevParki.includes(park)
+                ? prev.storitevParki.filter(p => p !== park)
+                : [...prev.storitevParki, park];
+            return { ...prev, storitevParki: newParki };
+        });
+    };
+
+    const togglePasjiKos = (opcija) => {
+        setFormData(prev => {
+            const newPasjiKosi = prev.storitevPasjiKosi.includes(opcija)
+                ? prev.storitevPasjiKosi.filter(p => p !== opcija)
+                : [...prev.storitevPasjiKosi, opcija];
+            return { ...prev, storitevPasjiKosi: newPasjiKosi };
+        });
+    };
+
+    const toggleVisina = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            storitevVisine: prev.storitevVisine.map((v, i) => 
+                i === index ? { ...v, selected: !v.selected } : v
+            )
+        }));
+    };
+
+    const updateVisinaKolicina = (index, kolicina) => {
+        setFormData(prev => ({
+            ...prev,
+            storitevVisine: prev.storitevVisine.map((v, i) => 
+                i === index ? { ...v, kolicina } : v
+            )
+        }));
+    };
+
+    const toggleGlobina = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            storitevGlobine: prev.storitevGlobine.map((g, i) => 
+                i === index ? { ...g, selected: !g.selected } : g
+            )
+        }));
+    };
+
+    const updateGlobinaKolicina = (index, kolicina) => {
+        setFormData(prev => ({
+            ...prev,
+            storitevGlobine: prev.storitevGlobine.map((g, i) => 
+                i === index ? { ...g, kolicina } : g
+            )
+        }));
+    };
+
+    const updateArrayField = (arrayName, index, field, value) => {
+        if (arrayName === 'delavci' && field === 'ime' && index > 0 && value) {
+            setFormData(prev => {
+                const newDelavci = [...prev.delavci];
+                newDelavci[index] = { ...newDelavci[index], [field]: value };
+                if (newDelavci[0].ure && !newDelavci[index].ure) {
+                    newDelavci[index] = { ...newDelavci[index], ure: newDelavci[0].ure, minute: newDelavci[0].minute || '' };
+                }
+                return { ...prev, delavci: newDelavci };
+            });
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [arrayName]: prev[arrayName].map((item, i) => 
+                    i === index ? { ...item, [field]: value } : item
+                )
+            }));
+        }
+    };
+
+    const updatePriorityStroj = (strojName, field, value) => {
+        setFormData(prev => ({
+            ...prev,
+            priorityStroji: {
+                ...prev.priorityStroji,
+                [strojName]: {
+                    ...prev.priorityStroji[strojName],
+                    [field]: value
+                }
+            }
+        }));
+    };
+
+    const getAvailableDelavci = (currentIndex) => {
+        const selected = formData.delavci.map((d, i) => i !== currentIndex ? d.ime : null).filter(ime => ime && ime !== 'Drugo');
+        return delavciList.filter(d => d === 'Drugo' || !selected.includes(d));
+    };
+
+    const getAvailableVozila = (currentIndex) => {
+        const selected = formData.vozila.map((v, i) => i !== currentIndex ? v.vozilo : null).filter(vozilo => vozilo && vozilo !== 'Drugo');
+        return vozilaList.filter(v => v === 'Drugo' || !selected.includes(v));
+    };
+
+    const getPriorityStroji = () => {
+        return storitevStrojiMapping[formData.storitev] || ['Ročni pihalnik'];
+    };
+
+    const getAvailableDodatniStroji = (currentIndex) => {
+        const priorityList = getPriorityStroji();
+        const selectedDodatni = formData.dodatniStroji.map((s, i) => i !== currentIndex ? s.naziv : null).filter(naziv => naziv && naziv !== 'Drugo');
+        return strojiList.filter(s => !priorityList.includes(s) && (s === 'Drugo' || !selectedDodatni.includes(s)));
+    };
+
+    const getAvailableObmocjaKoncano = (currentIndex) => {
+        const selected = formData.obmocjeKoncano.map((o, i) => i !== currentIndex ? o.obmocje : null).filter(obmocje => obmocje && obmocje !== 'Drugo');
+        return obmocja.filter(o => o === 'Drugo' || !selected.includes(o));
+    };
+
+    const getAvailableObmocjaNedokoncano = (currentIndex) => {
+        const selected = formData.obmocjeNedokoncano.map((o, i) => i !== currentIndex ? o.obmocje : null).filter(obmocje => obmocje && obmocje !== 'Drugo');
+        return obmocja.filter(o => o === 'Drugo' || !selected.includes(o));
+    };
+
+    // Izvleči kodo storitve za ime naloga
+    const getStoritevCode = () => {
+        const match = formData.storitev.match(/^(mok\d+[a-z]?)/i);
+        return match ? match[1] : 'DN';
+    };
+
+    // VALIDACIJA
+    const validateForm = () => {
+        const errors = [];
+        
+        // Preveri če ima vsak izbran delavec vpisane ure
+        formData.delavci.forEach((delavec, idx) => {
+            if (delavec.ime && !delavec.ure && !delavec.minute) {
+                const imeName = delavec.ime === 'Drugo' ? delavec.drugaIme : delavec.ime;
+                errors.push('Delavec ' + (imeName || (idx + 1)) + ' nima vpisanih ur');
+            }
+        });
+        
+        // Preveri če ima vsako izbrano vozilo vpisane kilometre
+        formData.vozila.forEach((vozilo, idx) => {
+            if (vozilo.vozilo && !vozilo.km) {
+                const voziloName = vozilo.vozilo === 'Drugo' ? vozilo.drugaReg : vozilo.vozilo;
+                errors.push('Vozilo ' + (voziloName || (idx + 1)) + ' nima vpisanih kilometrov');
+            }
+        });
+        
+        // Preveri prioritetne stroje - če imajo ure, morajo imeti vsaj ure ali minute
+        const priorityStroji = getPriorityStroji();
+        priorityStroji.forEach(strojName => {
+            const strojData = formData.priorityStroji[strojName];
+            // Če je stroj "aktiven" (ima kakršnokoli vrednost), preveri da ima ure
+            if (strojData && (strojData.ure === '0' || strojData.minute === '0') && !strojData.ure && !strojData.minute) {
+                errors.push('Stroj ' + strojName + ' nima vpisanih ur');
+            }
+        });
+        
+        // Preveri dodatne stroje
+        formData.dodatniStroji.forEach((stroj, idx) => {
+            if (stroj.naziv && !stroj.ure && !stroj.minute) {
+                const strojName = stroj.naziv === 'Drugo' ? stroj.drugaNaziv : stroj.naziv;
+                errors.push('Stroj ' + (strojName || (idx + 1)) + ' nima vpisanih ur');
+            }
+        });
+        
+        // Preveri podpis
+        const finalPodpis = formData.podpisOdgovornega === 'Drugo' ? formData.podpisDrugo : formData.podpisOdgovornega;
+        if (!finalPodpis) {
+            errors.push('Manjka podpis odgovornega delavca');
+        }
+        
+        return errors;
+    };
+
+    // Dodajanje slik
+    const handleImageUpload = (event) => {
+        const files = Array.from(event.target.files);
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        
+        files.forEach(file => {
+            if (file.size > maxSize) {
+                setStatusMessage({ text: '❌ Slika ' + file.name + ' je prevelika (max 5MB)', type: 'error' });
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setFormData(prev => ({
+                    ...prev,
+                    slike: [...prev.slike, {
+                        name: file.name,
+                        data: e.target.result,
+                        timestamp: new Date().toISOString()
+                    }]
+                }));
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        // Reset input
+        event.target.value = '';
+    };
+
+    const removeImage = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            slike: prev.slike.filter((_, i) => i !== index)
+        }));
+    };
+
+    const saveToGoogleSheets = async () => {
+        // VALIDACIJA
+        const errors = validateForm();
+        if (errors.length > 0) {
+            setValidationErrors(errors);
+            setStatusMessage({ text: '❌ Prosim popravite napake pred shranjevanjem', type: 'error' });
+            // Scroll to top to show errors
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+        setValidationErrors([]);
+        
+        if (GOOGLE_SHEETS_API_URL === 'PLACEHOLDER_URL') {
+            setStatusMessage({ text: '❌ Napaka: Google Sheets API URL ni nastavljen!', type: 'error' });
+            return;
+        }
+
+        setIsSaving(true);
+        setStatusMessage({ text: '⏳ Shranjujem...', type: 'info' });
+
+        try {
+            let finalStoritev = formData.storitev;
+            if (formData.storitev === 'Drugo' && formData.storitevDrugo) {
+                finalStoritev = formData.storitevDrugo;
+            } else if (formData.storitev === 'mok36 Nepredvidena dela' && formData.storitevDrugo) {
+                finalStoritev = formData.storitev + ' ' + formData.storitevDrugo;
+            }
+
+            let visinaKolicina = '';
+            if (formData.storitev === 'mok20 Obrez dreves' || formData.storitev === 'mok21 Posek dreves' || formData.storitev === 'mok22 Odščip vej') {
+                const selectedVisine = formData.storitevVisine.map((v, idx) => v.selected ? visinaOpcije[idx] + ': ' + (v.kolicina || '0') : null).filter(v => v !== null);
+                if (selectedVisine.length > 0) visinaKolicina = selectedVisine.join(', ');
+            }
+
+            if (formData.storitev === 'mok24 Odstranitev panjev') {
+                const selectedGlobine = formData.storitevGlobine.map((g, idx) => g.selected ? globinaOpcije[idx] + ': ' + (g.kolicina || '0') : null).filter(g => g !== null);
+                if (selectedGlobine.length > 0) visinaKolicina = selectedGlobine.join(', ');
+            }
+
+            if (storitveKolicine[formData.storitev] && formData.storitevKolicina) {
+                visinaKolicina = formData.storitevKolicina + ' ' + storitveKolicine[formData.storitev];
+            }
+
+            if (formData.storitev === 'mok35 Vzdrževanje čistoče' && formData.storitevParki.length > 0) {
+                visinaKolicina = formData.storitevParki.join(', ');
+            }
+
+            if (formData.storitev === 'mok34 Čiščenje pasjih košev' && formData.storitevPasjiKosi.length > 0) {
+                visinaKolicina = formData.storitevPasjiKosi.join(', ');
+            }
+
+            const finalNarocnik = formData.narocnik === 'Drugo' ? formData.narocnikDrugo : formData.narocnik;
+            const finalPodpis = formData.podpisOdgovornega === 'Drugo' ? formData.podpisDrugo : formData.podpisOdgovornega;
+
+            // Ime naloga: datum + šifra storitve
+            const storitevCode = getStoritevCode();
+            const imeNaloga = formData.datum + ' ' + storitevCode;
+
+            const data = {
+                imeNaloga: imeNaloga,
+                narocnik: finalNarocnik,
+                datum: formData.datum,
+                storitev: finalStoritev,
+                visinaKolicina: visinaKolicina,
+                obmocjeKoncano: formData.obmocjeKoncano.map(o => o.obmocje === 'Drugo' ? o.drugo : o.obmocje).filter(o => o).join(', '),
+                obmocjeNedokoncano: formData.obmocjeNedokoncano.map(o => o.obmocje === 'Drugo' ? o.drugo : o.obmocje).filter(o => o).join(', ')
+            };
+
+            // Delavci z decimalno pretvorbo
+            for (let i = 0; i < 15; i++) {
+                if (formData.delavci[i] && formData.delavci[i].ime) {
+                    const imeName = formData.delavci[i].ime === 'Drugo' && formData.delavci[i].drugaIme ? formData.delavci[i].drugaIme : formData.delavci[i].ime;
+                    const decimalUre = timeToDecimal(formData.delavci[i].ure, formData.delavci[i].minute);
+                    data['delavec' + (i+1)] = imeName;
+                    data['delavec' + (i+1) + 'Ure'] = decimalUre;
+                    data['delavec' + (i+1) + 'Enota'] = decimalUre > 0 ? 'ur' : '';
+                }
+            }
+
+            // Vozila
+            for (let i = 0; i < 5; i++) {
+                if (formData.vozila[i] && formData.vozila[i].vozilo) {
+                    const voziloName = formData.vozila[i].vozilo === 'Drugo' && formData.vozila[i].drugaReg ? formData.vozila[i].drugaReg : formData.vozila[i].vozilo;
+                    data['vozilo' + (i+1)] = voziloName;
+                    data['vozilo' + (i+1) + 'Km'] = formData.vozila[i].km;
+                    data['vozilo' + (i+1) + 'Enota'] = formData.vozila[i].km ? 'km' : '';
+                }
+            }
+
+            // Stroji - prioritetni
+            let strojIndex = 1;
+            const priorityStroji = getPriorityStroji();
+            priorityStroji.forEach(strojName => {
+                const strojData = formData.priorityStroji[strojName];
+                if (strojData && (strojData.ure || strojData.minute)) {
+                    const decimalUre = timeToDecimal(strojData.ure, strojData.minute);
+                    data['stroj' + strojIndex] = strojName;
+                    data['stroj' + strojIndex + 'Ure'] = decimalUre;
+                    data['stroj' + strojIndex + 'Enota'] = decimalUre > 0 ? 'ur' : '';
+                    strojIndex++;
+                }
+            });
+
+            // Stroji - dodatni
+            formData.dodatniStroji.forEach((stroj, idx) => {
+                if (stroj.naziv && strojIndex <= 10) {
+                    const strojName = stroj.naziv === 'Drugo' && stroj.drugaNaziv ? stroj.drugaNaziv : stroj.naziv;
+                    const decimalUre = timeToDecimal(stroj.ure, stroj.minute);
+                    data['stroj' + strojIndex] = strojName;
+                    data['stroj' + strojIndex + 'Ure'] = decimalUre;
+                    data['stroj' + strojIndex + 'Enota'] = decimalUre > 0 ? 'ur' : '';
+                    strojIndex++;
+                }
+            });
+
+            // Materiali
+            for (let i = 0; i < 5; i++) {
+                if (formData.materiali[i] && formData.materiali[i].material) {
+                    let materialName = formData.materiali[i].material;
+                    if (formData.materiali[i].material === 'Drugo' && formData.materiali[i].drugMaterial) {
+                        materialName = formData.materiali[i].drugMaterial;
+                    } else if ((formData.materiali[i].material === 'Gnojilo' || formData.materiali[i].material === 'Travno seme') && formData.materiali[i].vrsta) {
+                        materialName = formData.materiali[i].material + ' ' + formData.materiali[i].vrsta;
+                    }
+                    data['material' + (i+1)] = materialName;
+                    data['material' + (i+1) + 'Kolicina'] = formData.materiali[i].kolicina;
+                    data['material' + (i+1) + 'Enota'] = formData.materiali[i].enota;
+                }
+            }
+
+            // Odpadki
+            for (let i = 0; i < 2; i++) {
+                if (formData.odpadki[i] && formData.odpadki[i].vrsta) {
+                    let odpadekName = formData.odpadki[i].vrsta === 'Drugo' && formData.odpadki[i].drugaVrsta ? formData.odpadki[i].drugaVrsta : formData.odpadki[i].vrsta;
+                    data['odpadki' + (i+1)] = odpadekName;
+                    data['odpadki' + (i+1) + 'Kolicina'] = formData.odpadki[i].kolicina;
+                    data['odpadki' + (i+1) + 'Enota'] = formData.odpadki[i].enota;
+                }
+            }
+
+            data.opombe = formData.opombe;
+            data.podpis = finalPodpis;
+            
+            // Slike - pošlji kot base64 string
+            if (formData.slike.length > 0) {
+                data.slikeCount = formData.slike.length;
+                formData.slike.forEach((slika, idx) => {
+                    data['slika' + (idx + 1) + 'Name'] = slika.name;
+                    data['slika' + (idx + 1) + 'Data'] = slika.data;
+                });
+            }
+
+            let iframe = document.getElementById('hidden-submit-iframe');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.id = 'hidden-submit-iframe';
+                iframe.name = 'hidden-submit-iframe';
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+            }
+
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = GOOGLE_SHEETS_API_URL;
+            form.target = 'hidden-submit-iframe';
+
+            Object.keys(data).forEach(key => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = data[key] || '';
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+
+            setTimeout(() => {
+                setIsSaving(false);
+                setIsSaved(true);
+                setStatusMessage({ text: '✅ Uspešno shranjeno!', type: 'success' });
+            }, 2000);
+
+        } catch (error) {
+            setIsSaving(false);
+            setStatusMessage({ text: '❌ Napaka: ' + error.message, type: 'error' });
+        }
+    };
+
+    const resetForm = () => {
+        if (confirm('Ali ste prepričani, da želite izbrisati vse podatke?')) {
+            setFormData({
+                narocnik: 'Mestna Občina Kranj',
+                narocnikDrugo: '',
+                datum: '',
+                storitev: '',
+                storitevDrugo: '',
+                storitevVisine: Array(5).fill().map(() => ({ selected: false, kolicina: '' })),
+                storitevGlobine: Array(5).fill().map(() => ({ selected: false, kolicina: '' })),
+                storitevKolicina: '',
+                storitevParki: [],
+                storitevPasjiKosi: [],
+                obmocjeKoncano: Array(15).fill().map(() => ({ obmocje: '', drugo: '' })),
+                obmocjeNedokoncano: Array(15).fill().map(() => ({ obmocje: '', drugo: '' })),
+                delavci: Array(15).fill().map(() => ({ ime: '', ure: '', minute: '', drugaIme: '' })),
+                vozila: Array(5).fill().map(() => ({ vozilo: '', km: '', drugaReg: '' })),
+                priorityStroji: {},
+                dodatniStroji: Array(5).fill().map(() => ({ naziv: '', ure: '', minute: '', drugaNaziv: '' })),
+                materiali: Array(5).fill().map(() => ({ material: '', vrsta: '', drugMaterial: '', kolicina: '', enota: '' })),
+                odpadki: Array(2).fill().map(() => ({ vrsta: '', drugaVrsta: '', kolicina: '', enota: '' })),
+                slike: [],
+                opombe: '',
+                podpisOdgovornega: '',
+                podpisDrugo: ''
+            });
+            setValidationErrors([]);
+            setIsSaved(false);
+            setStatusMessage({ text: '', type: '' });
+            // Clear flatpickr
+            if (flatpickrInstance.current) {
+                flatpickrInstance.current.clear();
+            }
+        }
+    };
+
+    // Komponenta za vnos ur in minut
+    const TimeInput = ({ ure, minute, onChangeUre, onChangeMinute, placeholder }) => {
+        return e('div', { className: 'time-input' },
+            e('input', { type: 'number', min: '0', max: '24', placeholder: 'ur', value: ure || '', onChange: (ev) => onChangeUre(ev.target.value), style: { width: '50px' } }),
+            e('span', null, ':'),
+            e('input', { type: 'number', min: '0', max: '59', step: '5', placeholder: 'min', value: minute || '', onChange: (ev) => onChangeMinute(ev.target.value), style: { width: '50px' } })
+        );
+    };
+
+    const priorityStroji = getPriorityStroji();
+
+    return e('div', { className: 'container' },
+        // Header
+        e('div', { className: 'header' },
+            e('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' } },
+                e('div', { style: { textAlign: 'left' } },
+                    e('h1', { style: { margin: '0', fontSize: '24px', fontWeight: '700' } }, 'Delovni nalog')
+                ),
+                e('div', { style: { textAlign: 'right' } },
+                    e('div', { style: { fontSize: '16px', fontWeight: '600', marginBottom: '4px' } }, 'FLORA & SPORT D.O.O.'),
+                    e('div', { style: { fontSize: '14px', opacity: '0.95' } }, 'Koroška cesta 22, 4000 Kranj')
+                )
+            )
+        ),
+
+        // Osnovni podatki
+        e('div', { className: 'card' },
+            e('div', { className: 'form-group' },
+                e('label', { className: 'form-label' }, 'Naročnik'),
+                e('select', { value: formData.narocnik, onChange: (ev) => updateField('narocnik', ev.target.value) },
+                    ...narocniki.map((n, idx) => e('option', { key: idx, value: n }, n))
+                ),
+                formData.narocnik === 'Drugo' && e('input', { type: 'text', value: formData.narocnikDrugo, onChange: (ev) => updateField('narocnikDrugo', ev.target.value), placeholder: 'Vnesite naročnika...', style: { marginTop: '8px' } })
+            ),
+
+            e('div', { className: 'form-group' },
+                e('label', { className: 'form-label' }, 'Datum'),
+                e('input', { 
+                    type: 'text', 
+                    ref: datumRef,
+                    value: formData.datum, 
+                    onChange: (ev) => updateField('datum', ev.target.value),
+                    placeholder: 'Izberi datum...',
+                    readOnly: true
+                })
+            ),
+
+            e('div', { className: 'form-group' },
+                e('label', { className: 'form-label' }, 'Storitev'),
+                e('select', { value: formData.storitev, onChange: (ev) => { updateField('storitev', ev.target.value); updateField('priorityStroji', {}); } },
+                    e('option', { value: '' }, 'Izberi storitev...'),
+                    ...storitve.map((s, idx) => e('option', { key: idx, value: s }, s))
+                )
+            ),
+
+            // Višine za obrez/posek/odščip
+            (formData.storitev === 'mok20 Obrez dreves' || formData.storitev === 'mok21 Posek dreves' || formData.storitev === 'mok22 Odščip vej') &&
+                e('div', { className: 'form-group' },
+                    e('label', { className: 'form-label' }, 'Višina drevesa'),
+                    e('div', { className: 'checkbox-group' },
+                        ...visinaOpcije.map((visina, idx) =>
+                            e('div', { key: idx, className: 'checkbox-with-input' },
+                                e('input', { type: 'checkbox', checked: formData.storitevVisine[idx].selected, onChange: () => toggleVisina(idx) }),
+                                e('span', { style: { width: '90px', fontSize: '14px' } }, visina),
+                                formData.storitevVisine[idx].selected && e('input', { type: 'number', step: '1', placeholder: 'Količina', value: formData.storitevVisine[idx].kolicina, onChange: (ev) => updateVisinaKolicina(idx, ev.target.value) })
+                            )
+                        )
+                    )
+                ),
+
+            // Globine za frezanje/odstranitev panjev
+            formData.storitev === 'mok24 Odstranitev panjev' &&
+                e('div', { className: 'form-group' },
+                    e('label', { className: 'form-label' }, 'Obseg debla'),
+                    e('div', { className: 'checkbox-group' },
+                        ...globinaOpcije.map((globina, idx) =>
+                            e('div', { key: idx, className: 'checkbox-with-input' },
+                                e('input', { type: 'checkbox', checked: formData.storitevGlobine[idx].selected, onChange: () => toggleGlobina(idx) }),
+                                e('span', { style: { width: '90px', fontSize: '14px' } }, globina),
+                                formData.storitevGlobine[idx].selected && e('input', { type: 'number', step: '1', placeholder: 'Količina', value: formData.storitevGlobine[idx].kolicina, onChange: (ev) => updateGlobinaKolicina(idx, ev.target.value) })
+                            )
+                        )
+                    )
+                ),
+
+            // Količina za storitve
+            storitveKolicine[formData.storitev] &&
+                e('div', { className: 'form-group' },
+                    e('label', { className: 'form-label' }, 'Količina (' + storitveKolicine[formData.storitev] + ')'),
+                    e('input', { type: 'number', step: '0.1', value: formData.storitevKolicina, onChange: (ev) => updateField('storitevKolicina', ev.target.value), placeholder: 'Vnesite količino' })
+                ),
+
+            // Parki za vzdrževanje čistoče
+            formData.storitev === 'mok35 Vzdrževanje čistoče' &&
+                e('div', { className: 'form-group' },
+                    e('label', { className: 'form-label' }, 'Kateri parki?'),
+                    e('div', { className: 'checkbox-group' },
+                        ...parkiOpcije.map((park, idx) =>
+                            e('div', { key: idx, className: 'checkbox-item' },
+                                e('input', { type: 'checkbox', checked: formData.storitevParki.includes(park), onChange: () => togglePark(park) }),
+                                e('span', { style: { fontSize: '14px' } }, park)
+                            )
+                        )
+                    )
+                ),
+
+            // Pasji koši - izbira 7 ali 14 dni
+            formData.storitev === 'mok34 Čiščenje pasjih košev' &&
+                e('div', { className: 'form-group' },
+                    e('label', { className: 'form-label' }, 'Interval čiščenja'),
+                    e('div', { className: 'checkbox-group' },
+                        ...pasjiKosiOpcije.map((opcija, idx) =>
+                            e('div', { key: idx, className: 'checkbox-item' },
+                                e('input', { type: 'checkbox', checked: formData.storitevPasjiKosi.includes(opcija), onChange: () => togglePasjiKos(opcija) }),
+                                e('span', { style: { fontSize: '14px' } }, opcija)
+                            )
+                        )
+                    )
+                ),
+
+            // Nepredvidena dela - opis
+            (formData.storitev === 'mok36 Nepredvidena dela' || formData.storitev === 'Drugo') &&
+                e('div', { className: 'form-group' },
+                    e('label', { className: 'form-label' }, formData.storitev === 'Drugo' ? 'Vnesi storitev' : 'Opis del'),
+                    e('input', { type: 'text', value: formData.storitevDrugo, onChange: (ev) => updateField('storitevDrugo', ev.target.value), placeholder: 'Vnesite opis...' })
+                )
+        ),
+
+        // Območja
+        e('div', { className: 'card' },
+            e('div', { className: 'section-header' }, 'OBMOČJE KONČANO'),
+            ...formData.obmocjeKoncano.map((obmocje, idx) => {
+                const showField = idx === 0 || (idx > 0 && formData.obmocjeKoncano[idx - 1].obmocje);
+                if (!showField) return null;
+                return e('div', { key: idx, style: { marginBottom: '12px' } },
+                    e('select', { value: obmocje.obmocje, onChange: (ev) => updateArrayField('obmocjeKoncano', idx, 'obmocje', ev.target.value) },
+                        e('option', { value: '' }, 'Izberi območje...'),
+                        ...getAvailableObmocjaKoncano(idx).map((o, i) => e('option', { key: i, value: o }, o))
+                    ),
+                    obmocje.obmocje === 'Drugo' && e('input', { type: 'text', value: obmocje.drugo, onChange: (ev) => updateArrayField('obmocjeKoncano', idx, 'drugo', ev.target.value), placeholder: 'Vnesite območje...', style: { marginTop: '8px' } })
+                );
+            }).filter(Boolean)
+        ),
+
+        e('div', { className: 'card' },
+            e('div', { className: 'section-header' }, 'OBMOČJE NEDOKONČANO'),
+            ...formData.obmocjeNedokoncano.map((obmocje, idx) => {
+                const showField = idx === 0 || (idx > 0 && formData.obmocjeNedokoncano[idx - 1].obmocje);
+                if (!showField) return null;
+                return e('div', { key: idx, style: { marginBottom: '12px' } },
+                    e('select', { value: obmocje.obmocje, onChange: (ev) => updateArrayField('obmocjeNedokoncano', idx, 'obmocje', ev.target.value) },
+                        e('option', { value: '' }, 'Izberi območje...'),
+                        ...getAvailableObmocjaNedokoncano(idx).map((o, i) => e('option', { key: i, value: o }, o))
+                    ),
+                    obmocje.obmocje === 'Drugo' && e('input', { type: 'text', value: obmocje.drugo, onChange: (ev) => updateArrayField('obmocjeNedokoncano', idx, 'drugo', ev.target.value), placeholder: 'Vnesite območje...', style: { marginTop: '8px' } })
+                );
+            }).filter(Boolean)
+        ),
+
+        // Delavci
+        e('div', { className: 'card' },
+            e('div', { className: 'section-header' }, '1. PRISOTNI DELAVCI'),
+            ...formData.delavci.map((delavec, idx) => {
+                const showField = idx === 0 || (idx > 0 && formData.delavci[idx - 1].ime);
+                if (!showField) return null;
+                return e('div', { key: idx, style: { marginBottom: '12px' } },
+                    e('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
+                        e('span', { style: { fontSize: '16px', fontWeight: '600', color: '#374151', minWidth: '25px' } }, (idx + 1) + '.'),
+                        e('select', { value: delavec.ime, onChange: (ev) => updateArrayField('delavci', idx, 'ime', ev.target.value), style: { flex: 2 } },
+                            e('option', { value: '' }, 'Izberi delavca...'),
+                            ...getAvailableDelavci(idx).map((d, i) => e('option', { key: i, value: d }, d))
+                        ),
+                        e('input', { type: 'number', min: '0', max: '24', placeholder: 'ur', value: delavec.ure, onChange: (ev) => updateArrayField('delavci', idx, 'ure', ev.target.value), style: { width: '60px' } }),
+                        e('span', { style: { fontSize: '14px' } }, ':'),
+                        e('input', { type: 'number', min: '0', max: '59', step: '5', placeholder: 'min', value: delavec.minute, onChange: (ev) => updateArrayField('delavci', idx, 'minute', ev.target.value), style: { width: '60px' } })
+                    ),
+                    delavec.ime === 'Drugo' && e('input', { type: 'text', value: delavec.drugaIme, onChange: (ev) => updateArrayField('delavci', idx, 'drugaIme', ev.target.value), placeholder: 'Vnesite ime delavca...', style: { marginTop: '8px', marginLeft: '33px' } })
+                );
+            }).filter(Boolean)
+        ),
+
+        // Vozila
+        e('div', { className: 'card' },
+            e('div', { className: 'section-header' }, '2. POTNI NALOG'),
+            ...formData.vozila.map((vozilo, idx) => {
+                const showField = idx === 0 || (idx > 0 && formData.vozila[idx - 1].vozilo);
+                if (!showField) return null;
+                return e('div', { key: idx, style: { marginBottom: '12px' } },
+                    e('div', { className: 'row' },
+                        e('select', { value: vozilo.vozilo, onChange: (ev) => updateArrayField('vozila', idx, 'vozilo', ev.target.value) },
+                            e('option', { value: '' }, 'Vozilo...'),
+                            ...getAvailableVozila(idx).map((v, i) => e('option', { key: i, value: v }, v))
+                        ),
+                        e('input', { type: 'number', step: '0.1', placeholder: 'km', value: vozilo.km, onChange: (ev) => updateArrayField('vozila', idx, 'km', ev.target.value) })
+                    ),
+                    vozilo.vozilo === 'Drugo' && e('input', { type: 'text', value: vozilo.drugaReg, onChange: (ev) => updateArrayField('vozila', idx, 'drugaReg', ev.target.value), placeholder: 'Vnesite registrsko...', style: { marginTop: '8px' } })
+                );
+            }).filter(Boolean)
+        ),
+
+        // Stroji - NOVO: prioritetni stroji vidni, ostali v dropdownu
+        e('div', { className: 'card' },
+            e('div', { className: 'section-header' }, '3. STROJNO DELO'),
+            
+            // Prioritetni stroji za izbrano storitev
+            formData.storitev && e('div', { className: 'priority-stroj' },
+                e('span', { className: 'priority-stroj-label' }, 'Priporočeni stroji:'),
+                ...priorityStroji.map((strojName, idx) => {
+                    const strojData = formData.priorityStroji[strojName] || {};
+                    return e('div', { key: idx, style: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' } },
+                        e('span', { style: { flex: 2, fontSize: '14px' } }, strojName),
+                        e('input', { type: 'number', min: '0', max: '24', placeholder: 'ur', value: strojData.ure || '', onChange: (ev) => updatePriorityStroj(strojName, 'ure', ev.target.value), style: { width: '60px' } }),
+                        e('span', { style: { fontSize: '14px' } }, ':'),
+                        e('input', { type: 'number', min: '0', max: '59', step: '5', placeholder: 'min', value: strojData.minute || '', onChange: (ev) => updatePriorityStroj(strojName, 'minute', ev.target.value), style: { width: '60px' } })
+                    );
+                })
+            ),
+
+            // Dodatni stroji (dropdown)
+            e('div', { style: { marginTop: '16px' } },
+                e('span', { style: { fontSize: '14px', fontWeight: '600', color: '#666', display: 'block', marginBottom: '8px' } }, 'Ostali stroji:'),
+                ...formData.dodatniStroji.map((stroj, idx) => {
+                    const showField = idx === 0 || (idx > 0 && formData.dodatniStroji[idx - 1].naziv);
+                    if (!showField) return null;
+                    return e('div', { key: idx, style: { marginBottom: '12px' } },
+                        e('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
+                            e('select', { value: stroj.naziv, onChange: (ev) => updateArrayField('dodatniStroji', idx, 'naziv', ev.target.value), style: { flex: 2 } },
+                                e('option', { value: '' }, 'Izberi stroj...'),
+                                ...getAvailableDodatniStroji(idx).map((s, i) => e('option', { key: i, value: s }, s))
+                            ),
+                            e('input', { type: 'number', min: '0', max: '24', placeholder: 'ur', value: stroj.ure, onChange: (ev) => updateArrayField('dodatniStroji', idx, 'ure', ev.target.value), style: { width: '60px' } }),
+                            e('span', { style: { fontSize: '14px' } }, ':'),
+                            e('input', { type: 'number', min: '0', max: '59', step: '5', placeholder: 'min', value: stroj.minute, onChange: (ev) => updateArrayField('dodatniStroji', idx, 'minute', ev.target.value), style: { width: '60px' } })
+                        ),
+                        stroj.naziv === 'Drugo' && e('input', { type: 'text', value: stroj.drugaNaziv, onChange: (ev) => updateArrayField('dodatniStroji', idx, 'drugaNaziv', ev.target.value), placeholder: 'Vnesite naziv stroja...', style: { marginTop: '8px' } })
+                    );
+                }).filter(Boolean)
+            )
+        ),
+
+        // Materiali
+        e('div', { className: 'card' },
+            e('div', { className: 'section-header' }, '4. PORABA MATERIALA'),
+            ...formData.materiali.map((material, idx) => {
+                const showField = idx === 0 || (idx > 0 && formData.materiali[idx - 1].material);
+                if (!showField) return null;
+                const needsVrsta = material.material === 'Gnojilo' || material.material === 'Travno seme';
+                const isDrugo = material.material === 'Drugo';
+                const currentMaterialiList = getMaterialiForStoritev();
+                return e('div', { key: idx, style: { marginBottom: '12px' } },
+                    e('div', { className: 'row-3' },
+                        e('select', { value: material.material, onChange: (ev) => { updateArrayField('materiali', idx, 'material', ev.target.value); if (ev.target.value !== 'Gnojilo' && ev.target.value !== 'Travno seme') updateArrayField('materiali', idx, 'vrsta', ''); if (ev.target.value !== 'Drugo') updateArrayField('materiali', idx, 'drugMaterial', ''); } },
+                            e('option', { value: '' }, 'Izberi material'),
+                            ...currentMaterialiList.map(mat => e('option', { key: mat, value: mat }, mat))
+                        ),
+                        e('input', { type: 'number', step: '0.01', placeholder: 'Količina', value: material.kolicina, onChange: (ev) => updateArrayField('materiali', idx, 'kolicina', ev.target.value) }),
+                        e('select', { value: material.enota, onChange: (ev) => updateArrayField('materiali', idx, 'enota', ev.target.value) },
+                            e('option', { value: '' }, 'Enota'),
+                            ['kg', 'l', 'm', 'm²', 'm³', 'kos', 'vreča', 'Drugo'].map(en => e('option', { key: en, value: en }, en))
+                        )
+                    ),
+                    needsVrsta && e('input', { type: 'text', placeholder: 'Vrsta (npr. NPK 15-15-15)', value: material.vrsta, onChange: (ev) => updateArrayField('materiali', idx, 'vrsta', ev.target.value), style: { marginTop: '8px' } }),
+                    isDrugo && e('input', { type: 'text', placeholder: 'Vpišite naziv materiala', value: material.drugMaterial, onChange: (ev) => updateArrayField('materiali', idx, 'drugMaterial', ev.target.value), style: { marginTop: '8px' } })
+                );
+            }).filter(Boolean)
+        ),
+
+        // Odpadki
+        e('div', { className: 'card' },
+            e('div', { className: 'section-header' }, '5. ODVOZ IN DEPONIRANJE ODPADKOV'),
+            ...formData.odpadki.map((odpadek, idx) => {
+                const showField = idx === 0 || (idx > 0 && formData.odpadki[idx - 1].vrsta);
+                if (!showField) return null;
+                const isDrugo = odpadek.vrsta === 'Drugo';
+                const currentOdpadkiList = getOdpadkiForStoritev();
+                return e('div', { key: idx, style: { marginBottom: '12px' } },
+                    e('div', { className: 'row-3' },
+                        e('select', { value: odpadek.vrsta, onChange: (ev) => { updateArrayField('odpadki', idx, 'vrsta', ev.target.value); if (ev.target.value !== 'Drugo') updateArrayField('odpadki', idx, 'drugaVrsta', ''); } },
+                            e('option', { value: '' }, 'Izberi vrsto'),
+                            ...currentOdpadkiList.map(vrsta => e('option', { key: vrsta, value: vrsta }, vrsta))
+                        ),
+                        e('input', { type: 'number', step: '0.01', placeholder: 'Količina', value: odpadek.kolicina, onChange: (ev) => updateArrayField('odpadki', idx, 'kolicina', ev.target.value) }),
+                        e('select', { value: odpadek.enota, onChange: (ev) => updateArrayField('odpadki', idx, 'enota', ev.target.value) },
+                            e('option', { value: '' }, 'Enota'),
+                            ['kg', 'm³', 'kos', 'vreča', 'Drugo'].map(en => e('option', { key: en, value: en }, en))
+                        )
+                    ),
+                    isDrugo && e('input', { type: 'text', placeholder: 'Vpišite vrsto odpadkov', value: odpadek.drugaVrsta, onChange: (ev) => updateArrayField('odpadki', idx, 'drugaVrsta', ev.target.value), style: { marginTop: '8px' } })
+                );
+            }).filter(Boolean)
+        ),
+
+        // Slike
+        e('div', { className: 'card' },
+            e('div', { className: 'section-header' }, '6. SLIKE'),
+            e('div', { className: 'form-group' },
+                e('label', { 
+                    style: { 
+                        display: 'inline-block', 
+                        padding: '12px 24px', 
+                        backgroundColor: '#3b82f6', 
+                        color: 'white', 
+                        borderRadius: '8px', 
+                        cursor: 'pointer',
+                        fontWeight: '600'
+                    } 
+                },
+                    '📷 Dodaj slike',
+                    e('input', { 
+                        type: 'file', 
+                        accept: 'image/*', 
+                        multiple: true,
+                        onChange: handleImageUpload, 
+                        style: { display: 'none' } 
+                    })
+                ),
+                formData.slike.length > 0 && e('div', { style: { marginTop: '16px' } },
+                    e('div', { style: { fontSize: '14px', color: '#666', marginBottom: '8px' } }, 'Dodane slike (' + formData.slike.length + '):'),
+                    e('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '12px' } },
+                        ...formData.slike.map((slika, idx) => 
+                            e('div', { key: idx, style: { position: 'relative', width: '100px' } },
+                                e('img', { 
+                                    src: slika.data, 
+                                    style: { width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #d1d5db' } 
+                                }),
+                                e('button', { 
+                                    onClick: () => removeImage(idx),
+                                    style: { 
+                                        position: 'absolute', 
+                                        top: '-8px', 
+                                        right: '-8px', 
+                                        width: '24px', 
+                                        height: '24px', 
+                                        borderRadius: '50%', 
+                                        backgroundColor: '#ef4444', 
+                                        color: 'white', 
+                                        border: 'none', 
+                                        cursor: 'pointer',
+                                        fontSize: '14px',
+                                        padding: '0',
+                                        minHeight: 'auto'
+                                    } 
+                                }, '×'),
+                                e('div', { style: { fontSize: '10px', textAlign: 'center', marginTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, slika.name)
+                            )
+                        )
+                    )
+                )
+            )
+        ),
+
+        // Opombe in podpis
+        e('div', { className: 'card' },
+            // Validation errors
+            validationErrors.length > 0 && e('div', { 
+                style: { 
+                    padding: '12px', 
+                    borderRadius: '8px', 
+                    marginBottom: '16px', 
+                    backgroundColor: '#fee2e2', 
+                    border: '1px solid #fecaca' 
+                } 
+            },
+                e('div', { style: { fontWeight: '600', color: '#991b1b', marginBottom: '8px' } }, '⚠️ Prosim popravite naslednje napake:'),
+                e('ul', { style: { margin: '0', paddingLeft: '20px', color: '#991b1b' } },
+                    ...validationErrors.map((err, idx) => e('li', { key: idx, style: { fontSize: '14px' } }, err))
+                )
+            ),
+            
+            e('div', { className: 'form-group' },
+                e('label', { className: 'form-label' }, 'Opombe'),
+                e('textarea', { value: formData.opombe, onChange: (ev) => updateField('opombe', ev.target.value), placeholder: 'Vnesite opombe...', style: { minHeight: '80px' } })
+            ),
+
+            e('div', { className: 'form-group' },
+                e('label', { className: 'form-label' }, 'Podpis odgovornega delavca'),
+                e('select', { value: formData.podpisOdgovornega, onChange: (ev) => updateField('podpisOdgovornega', ev.target.value) },
+                    e('option', { value: '' }, 'Izberi...'),
+                    e('option', { value: 'Mitja POTOČNIK' }, 'Mitja POTOČNIK'),
+                    e('option', { value: 'Uroš PINTAR' }, 'Uroš PINTAR'),
+                    e('option', { value: 'Zoran MIČANOVIĆ' }, 'Zoran MIČANOVIĆ'),
+                    e('option', { value: 'Anja STANONIK' }, 'Anja STANONIK'),
+                    e('option', { value: 'Bine KUMER' }, 'Bine KUMER'),
+                    e('option', { value: 'Boštjan BIZJAK' }, 'Boštjan BIZJAK'),
+                    e('option', { value: 'David ZAVRL' }, 'David ZAVRL'),
+                    e('option', { value: 'Dejan PETKOVSKI' }, 'Dejan PETKOVSKI'),
+                    e('option', { value: 'Robert ERDELJEC' }, 'Robert ERDELJEC'),
+                    e('option', { value: 'Simon REPNIK' }, 'Simon REPNIK'),
+                    e('option', { value: 'Zoran STRUPI' }, 'Zoran STRUPI'),
+                    e('option', { value: 'Drugo' }, 'Drugo (ročni vnos)')
+                ),
+                formData.podpisOdgovornega === 'Drugo' && e('input', { type: 'text', value: formData.podpisDrugo, onChange: (ev) => updateField('podpisDrugo', ev.target.value), placeholder: 'Vnesite ime...', style: { marginTop: '8px' } })
+            ),
+
+            statusMessage.text && e('div', {
+                style: {
+                    padding: '12px', borderRadius: '8px', marginTop: '16px', marginBottom: '16px',
+                    backgroundColor: statusMessage.type === 'success' ? '#d1fae5' : statusMessage.type === 'error' ? '#fee2e2' : '#dbeafe',
+                    color: statusMessage.type === 'success' ? '#065f46' : statusMessage.type === 'error' ? '#991b1b' : '#1e40af',
+                    fontWeight: '600', textAlign: 'center'
+                }
+            }, statusMessage.text),
+
+            e('div', { style: { display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '24px' } },
+                e('button', { 
+                    onClick: saveToGoogleSheets, 
+                    disabled: isSaving || isSaved,
+                    style: { 
+                        backgroundColor: (isSaving || isSaved) ? '#9ca3af' : '#85b545', 
+                        color: 'white', 
+                        padding: '14px', 
+                        borderRadius: '8px', 
+                        border: 'none', 
+                        fontSize: '16px', 
+                        fontWeight: '600', 
+                        cursor: (isSaving || isSaved) ? 'not-allowed' : 'pointer', 
+                        minHeight: '44px',
+                        opacity: (isSaving || isSaved) ? 0.7 : 1
+                    } 
+                }, isSaving ? '⏳ Shranjujem...' : (isSaved ? '✅ Shranjeno' : '💾 Shrani')),
+                e('button', { onClick: resetForm, disabled: isSaving, style: { backgroundColor: isSaving ? '#9ca3af' : '#cb392c', color: 'white', padding: '14px', borderRadius: '8px', border: 'none', fontSize: '16px', fontWeight: '600', cursor: isSaving ? 'not-allowed' : 'pointer', minHeight: '44px' } }, '🗑️ Ponastavi obrazec')
+            )
+        )
+    );
+}
+
+ReactDOM.render(e(DelovniNalogApp), document.getElementById('root'));
+</script>
+</body>
+</html>
