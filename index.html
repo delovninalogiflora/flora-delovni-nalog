@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>FLORA & SPORT - Delovni nalog v10.7</title>
+    <title>FLORA & SPORT - Delovni nalog v11.7</title>
     
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -18,212 +18,82 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* Prepreči uhajanje elementov izven okvirja */
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
+        *, *::before, *::after { box-sizing: border-box; }
 
         :root { 
-            --primary: #85b545; 
-            --primary-dark: #6a9137; 
-            --primary-light: #eef7e5;
-            --danger: #ef4444; 
-            --danger-light: #fee2e2;
-            --gray-50: #f8fafc;
-            --gray-100: #f1f5f9;
-            --gray-200: #e2e8f0;
-            --gray-300: #cbd5e1;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
+            --primary: #85b545; --primary-dark: #6a9137; --primary-light: #eef7e5;
+            --danger: #ef4444; --danger-light: #fee2e2;
+            --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0; --gray-300: #cbd5e1;
+            --text-main: #0f172a; --text-muted: #64748b;
         }
         
-        body { 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background-color: var(--gray-100); 
-            color: var(--text-main); 
-            margin: 0; 
-            padding: 0; 
-            -webkit-font-smoothing: antialiased; 
-        }
-        
+        body { font-family: 'Inter', sans-serif; background-color: var(--gray-100); color: var(--text-main); margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
         .container { max-width: 800px; margin: 0 auto; padding: 16px; padding-bottom: 120px; }
         
-        /* Kartice */
-        .card { 
-            background: white; 
-            border-radius: 20px; 
-            padding: 24px; 
-            margin-bottom: 24px; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05); 
-            border: 1px solid rgba(226, 232, 240, 0.8); 
-        }
+        .card { background: white; border-radius: 20px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid rgba(226,232,240,0.8); }
         
-        /* Header */
-        .header { 
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
-            color: white; 
-            padding: 32px 24px; 
-            text-align: center; 
-            border-radius: 20px; 
-            margin-bottom: 32px; 
-            box-shadow: 0 10px 25px -5px rgba(133, 181, 69, 0.4); 
-            position: relative;
-            overflow: hidden;
-        }
-        .header::after {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
-            transform: rotate(30deg); pointer-events: none;
-        }
+        .header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 32px 24px; text-align: center; border-radius: 20px; margin-bottom: 32px; position: relative; overflow: hidden; }
         .header h1 { margin: 0; font-size: 1.75rem; font-weight: 700; letter-spacing: -0.5px; }
         .header p { margin: 8px 0 0 0; opacity: 0.9; font-size: 0.95rem; font-weight: 500; }
         
-        /* Form Elementi */
         label { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        input, select, textarea { width: 100%; padding: 14px 16px; border: 1.5px solid var(--gray-200); border-radius: 12px; font-size: 1rem; background: var(--gray-50); color: var(--text-main); transition: all 0.2s ease; font-family: inherit; }
+        select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; background-size: 16px; padding-right: 40px; appearance: none; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 4px var(--primary-light); }
+        input.error, select.error { border-color: var(--danger); background: var(--danger-light); }
         
-        input, select, textarea { 
-            width: 100%; 
-            padding: 14px 16px; 
-            border: 1.5px solid var(--gray-200); 
-            border-radius: 12px; 
-            font-size: 1rem; 
-            background: var(--gray-50); 
-            color: var(--text-main);
-            transition: all 0.2s ease; 
-            appearance: none;
-            font-family: inherit;
-        }
-        
-        select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 16px center;
-            background-size: 16px;
-            padding-right: 40px;
-        }
-
-        input:focus, select:focus, textarea:focus { 
-            outline: none; 
-            border-color: var(--primary); 
-            background: white;
-            box-shadow: 0 0 0 4px var(--primary-light); 
-        }
-
-        input.error, select.error {
-            border-color: var(--danger);
-            background: var(--danger-light);
-        }
-        
-        /* Gumbi */
-        .btn { 
-            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 16px 24px; border-radius: 14px; font-weight: 600; font-size: 1.05rem; 
-            cursor: pointer; border: none; transition: all 0.2s; width: 100%; 
-        }
-        .btn:active { transform: scale(0.97); }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 16px 24px; border-radius: 14px; font-weight: 600; font-size: 1.05rem; cursor: pointer; border: none; transition: all 0.2s; width: 100%; }
         .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(133, 181, 69, 0.3); }
-        .btn-primary:hover { background: var(--primary-dark); }
-        .btn-danger { background: var(--danger); color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
         .btn-secondary { background: var(--gray-100); color: var(--text-main); border: 1.5px dashed var(--gray-300); }
-        .btn-secondary:hover { background: var(--gray-200); }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        /* UPLOAD SLIK okvir */
-        .upload-box {
-            width: 100%;
-            border: 2px dashed var(--gray-300);
-            padding: 32px 24px;
-            background: var(--gray-50);
-            color: var(--text-muted);
-            border-radius: 14px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-        .upload-box:hover {
-            background: var(--primary-light);
-            border-color: var(--primary);
-            color: var(--primary-dark);
-        }
-
-        /* Grid sistemi */
+        .upload-box { width: 100%; border: 2px dashed var(--gray-300); padding: 32px 24px; background: var(--gray-50); color: var(--text-muted); border-radius: 14px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 12px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .grid-3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; }
+        
         .time-wrapper { display: flex; align-items: center; gap: 8px; background: var(--gray-50); border: 1.5px solid var(--gray-200); border-radius: 12px; padding: 2px; }
-        .time-wrapper input { border: none; background: transparent; text-align: center; padding: 12px 4px; border-radius: 8px; }
-        .time-wrapper input:focus { box-shadow: none; background: white; }
+        .time-wrapper input { border: none; background: transparent; text-align: center; padding: 12px 4px; border-radius: 8px; width: 100%; }
         .time-wrapper span { font-weight: bold; color: var(--text-muted); }
 
-        /* Custom Checkbox & Radio */
+        .dropdown-container { position: relative; margin-bottom: 16px; }
+        .dropdown-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 14px 16px; border: 1.5px solid var(--gray-200); border-radius: 12px; font-size: 1rem; background: var(--gray-50); color: var(--text-main); cursor: pointer; user-select: none; }
+        .dropdown-btn:hover { border-color: var(--primary); }
+        .dropdown-panel { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--gray-200); border-radius: 12px; margin-top: 4px; max-height: 250px; overflow-y: auto; z-index: 50; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+        
         .checkbox-group { display: flex; flex-direction: column; gap: 10px; }
-        .checkbox-item { display: flex; align-items: center; gap: 12px; background: white; padding: 12px 16px; border-radius: 12px; border: 1.5px solid var(--gray-200); cursor: pointer; transition: all 0.2s; }
-        .checkbox-item:hover { border-color: var(--primary-light); background: var(--primary-light); }
+        .checkbox-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--gray-100); cursor: pointer; transition: all 0.2s; margin: 0; }
+        .checkbox-item:last-child { border-bottom: none; }
+        .checkbox-item:hover { background: var(--primary-light); }
         
-        .checkbox-item input[type="checkbox"] {
-            appearance: none; background: white; margin: 0; padding: 0;
-            width: 24px; height: 24px; min-width: 24px;
-            border: 2px solid var(--gray-300); border-radius: 6px;
-            display: grid; place-content: center; transition: all 0.2s; cursor: pointer;
-        }
-        .checkbox-item input[type="checkbox"]::before {
-            content: ""; width: 12px; height: 12px; transform: scale(0);
-            box-shadow: inset 1em 1em white; transform-origin: center;
-            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-            transition: 120ms transform ease-in-out;
-        }
-        .checkbox-item input[type="checkbox"]:checked { background-color: var(--primary); border-color: var(--primary); }
-        .checkbox-item input[type="checkbox"]:checked::before { transform: scale(1); }
+        .checkbox-item input[type="checkbox"], .checkbox-item input[type="radio"] { appearance: none; background: white; margin: 0; width: 22px; height: 22px; min-width: 22px; border: 2px solid var(--gray-300); display: grid; place-content: center; cursor: pointer; transition: 0.2s; }
+        .checkbox-item input[type="checkbox"] { border-radius: 6px; }
+        .checkbox-item input[type="radio"] { border-radius: 50%; }
+        .checkbox-item input[type="checkbox"]::before { content: ""; width: 10px; height: 10px; transform: scale(0); box-shadow: inset 1em 1em white; transform-origin: center; clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); transition: 120ms transform ease-in-out; }
+        .checkbox-item input[type="radio"]::before { content: ""; width: 10px; height: 10px; border-radius: 50%; transform: scale(0); background-color: white; transition: 120ms transform ease-in-out; }
+        
+        .checkbox-item input:checked { background-color: var(--primary); border-color: var(--primary); }
+        .checkbox-item input:checked::before { transform: scale(1); }
 
-        /* Radio gumbi za enkratno izbiro (Pasji koši) */
-        .checkbox-item input[type="radio"] {
-            appearance: none; background: white; margin: 0; padding: 0;
-            width: 24px; height: 24px; min-width: 24px;
-            border: 2px solid var(--gray-300); border-radius: 50%;
-            display: grid; place-content: center; transition: all 0.2s; cursor: pointer;
-        }
-        .checkbox-item input[type="radio"]::before {
-            content: ""; width: 10px; height: 10px; border-radius: 50%; transform: scale(0);
-            background-color: white; transition: 120ms transform ease-in-out;
-        }
-        .checkbox-item input[type="radio"]:checked { background-color: var(--primary); border-color: var(--primary); }
-        .checkbox-item input[type="radio"]:checked::before { transform: scale(1); }
-        
-        /* Slike */
         .img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 16px; margin-top: 16px; }
-        .img-preview { position: relative; aspect-ratio: 1; border-radius: 16px; overflow: hidden; border: 2px solid var(--gray-200); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .img-preview { position: relative; aspect-ratio: 1; border-radius: 16px; overflow: hidden; border: 2px solid var(--gray-200); }
         .img-preview img { width: 100%; height: 100%; object-fit: cover; }
-        .img-remove { 
-            position: absolute; top: 8px; right: 8px; background: rgba(239, 68, 68, 0.9); color: white; border: none; 
-            width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); backdrop-filter: blur(4px);
-        }
+        .img-remove { position: absolute; top: 8px; right: 8px; background: rgba(239, 68, 68, 0.9); color: white; border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: grid; place-items: center; }
 
-        /* Sekcije */
-        .section-title { 
-            display: flex; align-items: center; gap: 10px;
-            background: var(--gray-50); padding: 14px 20px; border-radius: 14px; 
-            font-weight: 700; color: var(--primary-dark); margin: -10px -10px 24px -10px; 
-            font-size: 1.1rem; border-left: 4px solid var(--primary);
-        }
-        
+        .section-title { display: flex; align-items: center; gap: 10px; background: var(--gray-50); padding: 14px 20px; border-radius: 14px; font-weight: 700; color: var(--primary-dark); margin: -10px -10px 24px -10px; font-size: 1.1rem; border-left: 4px solid var(--primary); }
         .priority-box { background: var(--primary-light); border: 1.5px solid #bbf7d0; border-radius: 14px; padding: 20px; margin-bottom: 24px; }
         
-        /* Animacije za nove vrstice */
-        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(10px); }
-        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.3s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Error box */
         .error-summary { background-color: var(--danger-light); border: 1.5px solid #fca5a5; color: #991b1b; padding: 20px; border-radius: 16px; margin-bottom: 24px; font-size: 0.95rem; }
-        .error-summary ul { margin: 12px 0 0 24px; padding: 0; }
-        .error-summary li { margin-bottom: 6px; }
+
+        .unit-display { display: flex; align-items: center; padding: 0 16px; background: var(--gray-100); border-radius: 12px; border: 1.5px solid var(--gray-200); font-weight: 600; color: var(--text-muted); }
+        .unit-display input { border: none; background: transparent; padding: 0; width: 100%; box-shadow: none; font-weight: 600; color: var(--text-main); }
+        .unit-display input:focus { outline: none; box-shadow: none; }
 
         @media (max-width: 640px) {
             .grid-2, .grid-3 { grid-template-columns: 1fr; }
             .time-wrapper { width: 100%; justify-content: space-between; }
-            .time-wrapper input { width: 45%; }
             .card { padding: 20px 16px; }
         }
     </style>
@@ -234,11 +104,11 @@
 <script type="text/babel">
 const { useState, useEffect, useRef } = React;
 
-// --- KONFIGURACIJA ---
-const GOOGLE_SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbyOe1qFKy8MlmmO1_utR8rDSspGdw_IC4RL7B_NE4clp0gOvJ10u4MUsqKEIj4DiYWJ/exec';
+// --- POMEMBNO: TUKAJ PRILEPI SVOJ NOVI URL IZ APPS SCRIPTA ---
+const GOOGLE_SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbxu4N7sx6Nz0YD2hY9SXU_G1TA1Pye9gakNyTsXlfb9aNT_10V9Xl1BZyOznyenAZtu7A/exec';
 
-// --- MODERNE SVG IKONE ---
-const Icon = ({ name, size = 24, className = "" }) => {
+// --- IKONE ---
+const Icon = ({ name, size = 24 }) => {
     const icons = {
         doc: <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />,
         location: <><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></>,
@@ -253,60 +123,10 @@ const Icon = ({ name, size = 24, className = "" }) => {
         clock: <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />,
         close: <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
     };
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" className={className} width={size} height={size} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            {icons[name]}
-        </svg>
-    );
+    return <svg width={size} height={size} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>{icons[name]}</svg>;
 };
 
-// --- POMOŽNE FUNKCIJE ---
-const compressImage = (file) => {
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
-                const MAX_DIMENSION = 800; 
-
-                if (width > height) {
-                    if (width > MAX_DIMENSION) {
-                        height = Math.round(height * (MAX_DIMENSION / width));
-                        width = MAX_DIMENSION;
-                    }
-                } else {
-                    if (height > MAX_DIMENSION) {
-                        width = Math.round(width * (MAX_DIMENSION / height));
-                        height = MAX_DIMENSION;
-                    }
-                }
-                
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                
-                resolve({
-                    data: canvas.toDataURL('image/jpeg', 0.6), 
-                    name: file.name
-                });
-            }
-        }
-    });
-};
-
-const timeToDecimal = (ure, minute) => {
-    const h = parseFloat(ure) || 0;
-    const m = parseFloat(minute) || 0;
-    return (h + m / 60).toFixed(2);
-};
-
-// --- PODATKI (LISTE) ---
+// --- PODATKI IN ENOTE ---
 const ULICE = [
     "Baragov trg", "Bavdkova ulica", "Begunjska ulica", "Benedikova ulica", "Bertoncljeva ulica",
     "Bičkova ulica", "Bleiweisova cesta", "Cankarjeva ulica", "Cesta Iva Slavca", "Cesta Jaka Platiše",
@@ -369,8 +189,8 @@ const LISTS = {
         'Zoran STRUPI', 'PAUNOVSKI 1', 'PAUNOVSKI 2', 'PAUNOVSKI 3', 'PAUNOVSKI 4', 'Drugo'
     ],
     vozila: [
-        'KR AA-131', 'KR AF-471', 'KR DK-834', 'KR GS-288', 'KR JR-085', 'KR LH-350', 
-        'KR MA-821', 'KR RH-013', 'KR TL-851', 'KR VL-155', 'Drugo'
+        'KR AA-131 Master Cerada', 'KR AF-471 Master', 'KR GS-288 Master', 
+        'KR JR-085 MAN', 'KR LH-350 Transit', 'KR RH-013 Logan', 'KR TL-851 Sprinter', 'Drugo'
     ],
     stroji: [
         'Agregat', 'Dvižna košara', 'El. orodje', 'Freza finišer', 'Freza za štore',
@@ -381,62 +201,36 @@ const LISTS = {
         'Viličar', 'Višinski obrezovalnik', 'Drugo'
     ],
     materiali: ['Drobni material', 'Filc', 'Gnojilo', 'Količki', 'Kompost', 'Mivka', 'Pesek', 'Polovičke', 'Travno seme', 'Vrečke', 'Vrečke v roli', 'Zastirka', 'Zemlja', 'Drugo'],
-    odpadki: ['Invazivke', 'Listje', 'Mešano', 'Mivka', 'Pesek', 'Trava', 'Veje', 'Vreče', 'Zemlja', 'Drugo'],
-    enote: ['kg', 'l', 'm', 'm²', 'm³', 'kos', 'vreča', 'Drugo']
+    odpadki: ['Invazivke', 'Listje', 'Mešano', 'Mivka', 'Pesek', 'Trava', 'Veje', 'Vreče', 'Zemlja', 'Drugo']
 };
 
+const MATERIAL_ENOTE = { 'Drobni material': 'kos', 'Filc': 'm²', 'Gnojilo': 'kg', 'Količki': 'kos', 'Kompost': 'm³', 'Mivka': 'm³', 'Pesek': 'm³', 'Polovičke': 'kos', 'Travno seme': 'kg', 'Vrečke': 'kos', 'Vrečke v roli': 'kos', 'Zastirka': 'm³', 'Zemlja': 'm³' };
+const ODPADKI_ENOTE = { 'Invazivke': 'm³', 'Listje': 'm³', 'Mešano': 'm³', 'Mivka': 'm³', 'Pesek': 'm³', 'Trava': 'm³', 'Veje': 'm³', 'Vreče': 'kos', 'Zemlja': 'm³' };
+
 const STORITVE_STROJI = {
-    'mok01': ['Ročni pihalnik', 'Traktor s prikolico'],
-    'mok02': ['Ročni pihalnik', 'Traktor s prikolico'],
-    'mok03': ['Ročni pihalnik', 'Traktor s prikolico', 'Viličar'],
-    'mok04': ['Ročni pihalnik', 'Motorne škarje', 'Traktor s prikolico'],
+    'mok01': ['Ročni pihalnik', 'Traktor s prikolico'], 'mok02': ['Ročni pihalnik', 'Traktor s prikolico'],
+    'mok03': ['Ročni pihalnik', 'Traktor s prikolico', 'Viličar'], 'mok04': ['Ročni pihalnik', 'Motorne škarje', 'Traktor s prikolico'],
     'mok07': ['Ročni pihalnik', 'Motorne škarje', 'Motorna žaga', 'Višinski obrezovalnik', 'Traktor s prikolico'],
     'mok10': ['Ročni pihalnik', 'Mini bager', 'Sejalnica za travo', 'Traktor s prikolico'],
-    'mok11': ['Ročni pihalnik', 'Mini bager', 'Traktor s prikolico'],
-    'mok12': ['Ročni pihalnik', 'Sejalnica za travo', 'Motorna freza', 'Traktor s prikolico'],
-    'mok13': ['Ročni pihalnik', 'Traktor s prikolico', 'Mini bager'],
-    'mok15': ['Ročni pihalnik', 'Sejalnica za travo', 'Freza finišer', 'Motorna freza', 'Traktor s prikolico'],
+    'mok11': ['Ročni pihalnik', 'Mini bager', 'Traktor s prikolico'], 'mok12': ['Ročni pihalnik', 'Sejalnica za travo', 'Motorna freza', 'Traktor s prikolico'],
+    'mok13': ['Ročni pihalnik', 'Traktor s prikolico', 'Mini bager'], 'mok15': ['Ročni pihalnik', 'Sejalnica za travo', 'Freza finišer', 'Motorna freza', 'Traktor s prikolico'],
     'mok16': ['Ročni pihalnik', 'Mini bager', 'Motorna žaga', 'Motorne škarje', 'Traktor s prikolico'],
     'mok17': ['Ročni pihalnik', 'Mini bager', 'Motorna žaga', 'Motorne škarje', 'Traktor s prikolico'],
     'mok18': ['Ročni pihalnik', 'Traktor s prikolico', 'Viličar'],
     'mok20': ['Ročni pihalnik', 'Dvižna košara', 'Motorna žaga', 'Motorne škarje', 'Višinski obrezovalnik', 'Mlin za veje', 'Traktor s prikolico'],
     'mok21': ['Ročni pihalnik', 'Dvižna košara', 'Motorna žaga', 'Motorne škarje', 'Mlin za veje', 'Traktor s prikolico'],
     'mok22': ['Ročni pihalnik', 'Dvižna košara', 'Motorna žaga', 'Motorne škarje', 'Mlin za veje', 'Traktor s prikolico'],
-    'mok23': ['Ročni pihalnik', 'Mini bager', 'Traktor s prikolico'],
-    'mok24': ['Ročni pihalnik', 'Motorna freza', 'Freza za štore'],
-    'mok25': ['Ročni pihalnik', 'Traktor s prikolico'],
-    'mok26': ['Ročni pihalnik', 'Dvižna košara', 'Višinski obrezovalnik'],
+    'mok23': ['Ročni pihalnik', 'Mini bager', 'Traktor s prikolico'], 'mok24': ['Ročni pihalnik', 'Motorna freza', 'Freza za štore'],
+    'mok25': ['Ročni pihalnik', 'Traktor s prikolico'], 'mok26': ['Ročni pihalnik', 'Dvižna košara', 'Višinski obrezovalnik'],
     'mok27': ['Ročni pihalnik', 'Motorni pihalnik', 'Sesalec listja', 'Traktor s prikolico'],
     'mok28': ['Ročni pihalnik', 'Motorni pihalnik', 'Sesalec listja', 'Traktor s prikolico'],
     'mok29': ['Ročni pihalnik', 'Komunalna kosilnica', 'Samohodna kosilnica', 'Motorna kosa', 'Traktor s prikolico'],
-    'mok30': ['Ročni pihalnik', 'Traktor s prikolico', 'Odvoz odpadkov'],
-    'mok32': ['Ročni pihalnik', 'El. orodje', 'Agregat'],
-    'mok34': ['Ročni pihalnik'],
-    'mok35': ['Ročni pihalnik', 'Sesalec listja', 'Traktor s prikolico'],
+    'mok30': ['Ročni pihalnik', 'Traktor s prikolico', 'Odvoz odpadkov'], 'mok32': ['Ročni pihalnik', 'El. orodje', 'Agregat'],
+    'mok34': ['Ročni pihalnik'], 'mok35': ['Ročni pihalnik', 'Sesalec listja', 'Traktor s prikolico'],
     'mok36': ['Ročni pihalnik', 'Viličar', 'Mini bager', 'Traktor s prikolico']
 };
 
-// --- INITIAL STATE ---
-const INITIAL_STATE = {
-    narocnik: 'Mestna Občina Kranj', narocnikDrugo: '', datum: '',
-    storitev: '', storitevDrugo: '',
-    storitevVisine: Array(5).fill().map(() => ({ selected: false, kolicina: '' })),
-    storitevParki: [], 
-    storitevPasjiKosi: [], 
-    storitevKolicina: '', 
-    obmocjeKoncano: Array(15).fill().map(() => ({ obmocje: '', drugo: '' })),
-    obmocjeNedokoncano: Array(15).fill().map(() => ({ obmocje: '', drugo: '' })),
-    delavci: Array(15).fill().map(() => ({ ime: '', ure: '', minute: '', drugaIme: '' })),
-    vozila: Array(5).fill().map(() => ({ vozilo: '', km: '', drugaReg: '' })),
-    priorityStroji: {},
-    dodatniStroji: Array(5).fill().map(() => ({ naziv: '', ure: '', minute: '', drugaNaziv: '' })),
-    materiali: Array(5).fill().map(() => ({ material: '', vrsta: '', drugMaterial: '', kolicina: '', enota: '' })),
-    odpadki: Array(2).fill().map(() => ({ vrsta: '', drugaVrsta: '', kolicina: '', enota: '' })),
-    slike: [], opombe: '', podpisOdgovornega: '', podpisDrugo: ''
-};
-
-// --- KOMPONENTE ---
-
+// --- POMOŽNE KOMPONENTE ---
 const TimeInput = ({ ure, minute, onChangeUre, onChangeMinute, hasError }) => (
     <div className="time-wrapper" style={hasError ? {borderColor: 'var(--danger)', background: 'var(--danger-light)'} : {}}>
         <input type="number" min="0" max="24" placeholder="h" value={ure} onChange={(e) => onChangeUre(e.target.value)} />
@@ -445,307 +239,278 @@ const TimeInput = ({ ure, minute, onChangeUre, onChangeMinute, hasError }) => (
     </div>
 );
 
-function App() {
-    const loadState = () => {
-        const saved = localStorage.getItem('dn_flora_state');
-        return saved ? JSON.parse(saved) : INITIAL_STATE;
-    };
+const MultiSelectDropdown = ({ title, options, selectedData, onToggle, hasError }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
 
+    useEffect(() => {
+        const handleClick = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setIsOpen(false);
+        };
+        document.addEventListener('mousedown', handleClick);
+        return () => document.removeEventListener('mousedown', handleClick);
+    }, []);
+
+    const count = Object.keys(selectedData).length;
+
+    return (
+        <div className="dropdown-container" ref={dropdownRef}>
+            <div className={`dropdown-btn ${hasError ? 'error' : ''}`} onClick={() => setIsOpen(!isOpen)}>
+                <span>{title} {count > 0 && <span style={{background:'var(--primary)', color:'white', padding:'2px 8px', borderRadius:'10px', fontSize:'0.8rem', marginLeft:'8px'}}>{count} izbrano</span>}</span>
+                <span style={{fontSize: '0.8rem', transform: isOpen ? 'rotate(180deg)' : 'none', transition: '0.2s'}}>▼</span>
+            </div>
+            {isOpen && (
+                <div className="dropdown-panel">
+                    {options.map(opt => (
+                        <label key={opt} className="checkbox-item">
+                            <input type="checkbox" checked={!!selectedData[opt]} onChange={() => onToggle(opt)} />
+                            <span style={{fontWeight: 500}}>{opt}</span>
+                        </label>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
+// --- INITIAL STATE ---
+const INITIAL_STATE = {
+    narocnik: 'Mestna Občina Kranj', narocnikDrugo: '', datum: '',
+    storitev: '', storitevDrugo: '',
+    storitevVisine: Array(4).fill().map(() => ({ selected: false, kolicina: '' })),
+    storitevParki: [], storitevPasjiKosi: [], storitevKolicina: '', 
+    obmocjeKoncano: Array(5).fill().map(() => ({ obmocje: '', drugo: '' })),
+    obmocjeNedokoncano: Array(5).fill().map(() => ({ obmocje: '', drugo: '' })),
+    
+    selectedDelavci: {}, selectedVozila: {}, priorityStroji: {}, selectedStroji: {}, selectedMateriali: {}, selectedOdpadki: {},
+    slike: [], opombe: '', podpisOdgovornega: '', podpisDrugo: ''
+};
+
+function App() {
+    const loadState = () => { const saved = localStorage.getItem('dn_flora_state_v11_7'); return saved ? JSON.parse(saved) : INITIAL_STATE; };
     const [formData, setFormData] = useState(loadState);
     const [status, setStatus] = useState({ type: '', text: '' });
     const [loading, setLoading] = useState(false);
-    const [uploadProgress, setUploadProgress] = useState(0);
     const [validationErrors, setValidationErrors] = useState([]);
     const datePickerRef = useRef(null);
 
-    useEffect(() => {
-        localStorage.setItem('dn_flora_state', JSON.stringify(formData));
-    }, [formData]);
+    useEffect(() => { localStorage.setItem('dn_flora_state_v11_7', JSON.stringify(formData)); }, [formData]);
 
     useEffect(() => {
         if (datePickerRef.current) {
-            flatpickr(datePickerRef.current, {
-                locale: 'sl', dateFormat: 'Y-m-d', defaultDate: formData.datum,
-                onChange: (dates, str) => updateField('datum', str)
-            });
+            datePickerRef.current._flatpickr = flatpickr(datePickerRef.current, { locale: 'sl', dateFormat: 'Y-m-d', defaultDate: formData.datum, onChange: (d, str) => updateField('datum', str) });
         }
     }, []);
 
-    const updateField = (field, val) => {
-        setFormData(p => ({ ...p, [field]: val }));
+    const resetForm = () => {
+        setFormData(INITIAL_STATE);
+        setValidationErrors([]);
+        if (datePickerRef.current && datePickerRef.current._flatpickr) {
+            datePickerRef.current._flatpickr.clear();
+        }
+        window.scrollTo(0,0);
+    };
+
+    const updateField = (field, val) => { setFormData(p => ({ ...p, [field]: val })); if(validationErrors.length) setValidationErrors([]); };
+    
+    const handleToggle = (category, name, defaultData) => {
+        setFormData(p => {
+            const newCat = { ...p[category] };
+            if (newCat[name]) delete newCat[name]; 
+            else newCat[name] = defaultData;
+            return { ...p, [category]: newCat };
+        });
         if(validationErrors.length) setValidationErrors([]);
     };
-    
-    const updateArrayItem = (arr, idx, key, val) => {
+
+    const handleUpdate = (category, name, field, val) => {
+        setFormData(p => {
+            const newCat = { ...p[category] };
+            if(newCat[name]) newCat[name] = { ...newCat[name], [field]: val };
+            
+            if (category === 'selectedDelavci' && (field === 'ure' || field === 'minute')) {
+                const keys = Object.keys(newCat);
+                if (keys.length > 1 && name === keys[0]) {
+                    keys.forEach(k => {
+                        if (k !== name) newCat[k][field] = val;
+                    });
+                }
+            }
+            return { ...p, [category]: newCat };
+        });
+        if(validationErrors.length) setValidationErrors([]);
+    };
+
+    const updateLocArray = (arr, idx, key, val) => {
         setFormData(p => {
             const newArr = [...p[arr]];
             newArr[idx] = { ...newArr[idx], [key]: val };
-            if (arr === 'delavci' && idx > 0 && key === 'ime' && val && !newArr[idx].ure && newArr[0].ure) {
-                newArr[idx].ure = newArr[0].ure;
-                newArr[idx].minute = newArr[0].minute;
-            }
             return { ...p, [arr]: newArr };
         });
         if(validationErrors.length) setValidationErrors([]);
     };
 
-    const handleImageUpload = async (e) => {
-        const files = Array.from(e.target.files);
-        
-        if (formData.slike.length + files.length > 5) {
-            alert('⚠️ Opozorilo: Dodate lahko največ 5 slik hkrati, sicer bo pošiljanje prekinjeno.');
-            e.target.value = '';
-            return;
-        }
-
-        setLoading(true);
-        const newImages = [];
-        
-        for (const file of files) {
-            try {
-                const compressed = await compressImage(file);
-                newImages.push({ ...compressed, timestamp: new Date().toISOString() });
-            } catch (err) {
-                console.error("Napaka pri sliki", err);
-            }
-        }
-        
-        setFormData(p => ({ ...p, slike: [...p.slike, ...newImages] }));
-        setLoading(false);
-        e.target.value = ''; 
-    };
-
     const getPriorityStroji = () => {
-        const code = formData.storitev.substring(0, 5).replace('-', '');
         let key = Object.keys(STORITVE_STROJI).find(k => formData.storitev.startsWith(k));
         return key ? STORITVE_STROJI[key] : ['Ročni pihalnik'];
     };
 
     const validate = () => {
         const errs = [];
-        
+        if (!formData.narocnik) errs.push('Naročnik je obvezen.');
         if (!formData.datum) errs.push('Datum je obvezen.');
         if (!formData.storitev) errs.push('Storitev je obvezna.');
         
-        formData.delavci.forEach((d, i) => {
-            if (d.ime && (!d.ure && !d.minute)) errs.push(`Delavec ${i+1}: Vpiši ure ali minute!`);
+        const isMok34or35 = formData.storitev.includes('mok34') || formData.storitev.includes('mok35');
+        const hasKoncano = formData.obmocjeKoncano.some(o => o.obmocje && (o.obmocje !== 'Drugo' || o.drugo));
+        const hasNedokoncano = formData.obmocjeNedokoncano.some(o => o.obmocje && (o.obmocje !== 'Drugo' || o.drugo));
+        
+        if (!hasKoncano && !hasNedokoncano && !isMok34or35) {
+            errs.push('Lokacija dela je obvezna.');
+        }
+
+        const delavciKeys = Object.keys(formData.selectedDelavci);
+        if (delavciKeys.length === 0) errs.push('Prisotni delavci so obvezni (izberi vsaj enega).');
+        
+        delavciKeys.forEach(name => {
+            const d = formData.selectedDelavci[name];
+            if (!d.ure && !d.minute) errs.push(`Delavec (${name}): Vpiši ure ali minute!`);
+            if (name === 'Drugo' && !d.drugoIme) errs.push(`Delavec (Drugo): Vpiši ime!`);
         });
 
-        formData.vozila.forEach((v, i) => {
-            if (v.vozilo && !v.km) errs.push(`Vozilo ${i+1}: Vpiši kilometre!`);
+        Object.entries(formData.selectedVozila).forEach(([name, d]) => {
+            if (!d.km) errs.push(`Vozilo (${name}): Vpiši kilometre!`);
+            if (name === 'Drugo' && !d.drugoIme) errs.push(`Vozilo (Drugo): Vpiši registrsko!`);
         });
-
-        formData.dodatniStroji.forEach((s, i) => {
-            if (s.naziv && (!s.ure && !s.minute)) errs.push(`Stroj ${i+1}: Vpiši čas uporabe!`);
+        Object.entries(formData.selectedStroji).forEach(([name, d]) => {
+            if (!d.ure && !d.minute) errs.push(`Ostali Stroj (${name}): Vpiši čas uporabe!`);
+            if (name === 'Drugo' && !d.drugoIme) errs.push(`Stroj (Drugo): Vpiši naziv!`);
         });
-
-        formData.materiali.forEach((m, i) => {
-            if (m.material && !m.kolicina) errs.push(`Material ${i+1}: Vpiši količino!`);
+        Object.entries(formData.selectedMateriali).forEach(([name, d]) => {
+            if (!d.kolicina) errs.push(`Material (${name}): Vpiši količino!`);
+            if (name === 'Drugo' && !d.drugoIme) errs.push(`Material (Drugo): Vpiši naziv!`);
+            if (name === 'Drugo' && !d.enota) errs.push(`Material (Drugo): Vpiši enoto!`);
         });
-
-        formData.odpadki.forEach((o, i) => {
-            if (o.vrsta && !o.kolicina) errs.push(`Odpadki ${i+1}: Vpiši količino!`);
-        });
-
-        formData.obmocjeKoncano.forEach((o, i) => {
-            if (o.obmocje === 'Drugo' && !o.drugo) errs.push(`Lokacija Končano ${i+1}: Vpiši ulico!`);
-        });
-        formData.obmocjeNedokoncano.forEach((o, i) => {
-            if (o.obmocje === 'Drugo' && !o.drugo) errs.push(`Lokacija Nedokončano ${i+1}: Vpiši ulico!`);
+        Object.entries(formData.selectedOdpadki).forEach(([name, d]) => {
+            if (!d.kolicina) errs.push(`Odpadek (${name}): Vpiši količino!`);
+            if (name === 'Drugo' && !d.drugoIme) errs.push(`Odpadek (Drugo): Vpiši vrsto!`);
+            if (name === 'Drugo' && !d.enota) errs.push(`Odpadek (Drugo): Vpiši enoto!`);
         });
         
-        if (!formData.podpisOdgovornega && !formData.podpisDrugo) errs.push('Manjka podpis.');
-        
+        if (!formData.podpisOdgovornega) errs.push('Podpis odgovornega delavca je obvezen.');
+        else if (formData.podpisOdgovornega === 'Drugo' && !formData.podpisDrugo) errs.push('Podpis odgovornega: Vpiši ime in priimek.');
+
         return errs;
     };
 
-    const handleSubmit = async () => {
-        const errors = validate();
-        setValidationErrors(errors);
-        
-        if (errors.length) {
-            setStatus({ type: 'error', text: 'Prosim odpravite napake označene z rdečo.' });
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            return;
-        }
-
+    const handleImageUpload = async (e) => {
+        const files = Array.from(e.target.files);
+        if (formData.slike.length + files.length > 5) return alert('Največ 5 slik!');
         setLoading(true);
-        setUploadProgress(0);
-        setStatus({ type: 'info', text: 'Pripravljam in pošiljam podatke...' });
+        for (const file of files) {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image(); img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let w = img.width, h = img.height;
+                    if (w > 800 || h > 800) { if (w > h) { h = Math.round(h * (800 / w)); w = 800; } else { w = Math.round(w * (800 / h)); h = 800; } }
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    setFormData(p => ({ ...p, slike: [...p.slike, { data: canvas.toDataURL('image/jpeg', 0.6), name: file.name }] }));
+                }
+            }
+        }
+        setLoading(false); e.target.value = '';
+    };
 
-        const timeoutDuration = formData.slike.length > 0 ? 3000 + (formData.slike.length * 1500) : 2000;
-        const progressIntervalTime = 100;
-        const increment = 90 / (timeoutDuration / progressIntervalTime);
-        
-        const progressInterval = setInterval(() => {
-            setUploadProgress(prev => {
-                if (prev >= 90) return 90;
-                return prev + increment;
-            });
-        }, progressIntervalTime);
+    const handleSubmit = async () => {
+        const errors = validate(); setValidationErrors(errors);
+        if (errors.length) { setStatus({ type: 'error', text: 'Odpravite napake označene z rdečo.' }); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+
+        setLoading(true); setStatus({ type: 'info', text: 'Pošiljam podatke...' });
+
+        // FUNKCIJE ZA PRETVORBO DECIMALE V VEJICO
+        const formatNum = (num) => num ? num.toString().replace(/\./g, ',') : '';
+        const timeToDec = (h, m) => {
+            const dec = parseFloat(h||0) + parseFloat(m||0)/60;
+            return dec === 0 ? '' : dec.toFixed(2).replace('.', ',');
+        };
 
         const payload = {
             imeNaloga: `${formData.datum} ${formData.storitev.split(' ')[0]}`,
             narocnik: formData.narocnik === 'Drugo' ? formData.narocnikDrugo : formData.narocnik,
             datum: formData.datum,
-            storitev: formData.storitev === 'Drugo' || formData.storitev.includes('Nepredvidena') 
-                ? (formData.storitevDrugo || formData.storitev) : formData.storitev,
+            storitev: formData.storitev === 'Drugo' || formData.storitev.includes('Nepredvidena') ? (formData.storitevDrugo || formData.storitev) : formData.storitev,
             obmocjeKoncano: formData.obmocjeKoncano.map(o => o.obmocje === 'Drugo' ? o.drugo : o.obmocje).filter(Boolean).join(', '),
             obmocjeNedokoncano: formData.obmocjeNedokoncano.map(o => o.obmocje === 'Drugo' ? o.drugo : o.obmocje).filter(Boolean).join(', '),
             opombe: formData.opombe,
-            podpis: formData.podpisOdgovornega === 'Drugo' ? formData.podpisDrugo : formData.podpisOdgovornega
+            podpis: formData.podpisOdgovornega === 'Drugo' ? formData.podpisDrugo : formData.podpisOdgovornega,
+            
+            storitevKolicina: formData.storitevKolicina || '',
+            parki: formData.storitevParki.join('||'),
+            kosi: formData.storitevPasjiKosi.join('||')
         };
-
-        // Združimo opis storitve in izbrane opcije (parki / koši / višine)
-        let kolicinaTxt = '';
-        if (formData.storitevKolicina) kolicinaTxt = `${formData.storitevKolicina}`;
         
-        // Dodajanje parkov v opis
-        if (formData.storitevParki && formData.storitevParki.length > 0) {
-            kolicinaTxt += (kolicinaTxt ? ' | ' : '') + `Parki: ${formData.storitevParki.join(', ')}`;
-        }
+        const visLabels = ['do 5m', '5-10m', '10-15m', 'nad 15m'];
+        // Tudi tukaj dodamo formatNum, da bodo količine dreves z vejico (če bi kdo vpisal npr 1.5 drevesa)
+        payload.visine = formData.storitevVisine.map((v, i) => v.selected ? `${formatNum(v.kolicina || 0)}x ${visLabels[i]}` : null).filter(Boolean).join('||');
 
-        // Dodajanje pasjih košev v opis
-        if (formData.storitevPasjiKosi && formData.storitevPasjiKosi.length > 0) {
-            kolicinaTxt += (kolicinaTxt ? ' | ' : '') + `Koši: ${formData.storitevPasjiKosi.join(', ')}`;
-        }
-
-        // Dodajanje višin obrezovanja
-        const visine = formData.storitevVisine.filter(v => v.selected).map(v => `${v.kolicina || 0} kos`).join(', ');
-        if(visine) kolicinaTxt += (kolicinaTxt ? ' | ' : '') + visine;
-        
-        payload.visinaKolicina = kolicinaTxt;
-
-        formData.delavci.forEach((d, i) => {
-            if (d.ime) {
-                payload[`delavec${i+1}`] = d.ime === 'Drugo' ? d.drugaIme : d.ime;
-                payload[`delavec${i+1}Ure`] = timeToDecimal(d.ure, d.minute);
-                payload[`delavec${i+1}Enota`] = 'ur';
-            }
+        let dIdx = 1; Object.entries(formData.selectedDelavci).forEach(([n, d]) => {
+            if(dIdx>15) return; payload[`delavec${dIdx}`] = n==='Drugo'?d.drugoIme:n; payload[`delavec${dIdx}Ure`] = timeToDec(d.ure, d.minute); payload[`delavec${dIdx}Enota`] = 'ur'; dIdx++;
         });
 
-        formData.vozila.forEach((v, i) => {
-            if (v.vozilo) {
-                payload[`vozilo${i+1}`] = v.vozilo === 'Drugo' ? v.drugaReg : v.vozilo;
-                payload[`vozilo${i+1}Km`] = v.km;
-                payload[`vozilo${i+1}Enota`] = 'km';
-            }
+        let vIdx = 1; Object.entries(formData.selectedVozila).forEach(([n, d]) => {
+            // formatNum pretvori npr. 10.5 km v 10,5 km
+            if(vIdx>5) return; payload[`vozilo${vIdx}`] = n==='Drugo'?d.drugoIme:n; payload[`vozilo${vIdx}Km`] = formatNum(d.km); payload[`vozilo${vIdx}Enota`] = 'km'; vIdx++;
         });
 
-        let sIdx = 1;
-        getPriorityStroji().forEach(sName => {
-            const data = formData.priorityStroji[sName];
-            if (data && (data.ure || data.minute)) {
-                payload[`stroj${sIdx}`] = sName;
-                payload[`stroj${sIdx}Ure`] = timeToDecimal(data.ure, data.minute);
-                payload[`stroj${sIdx}Enota`] = 'ur';
-                sIdx++;
-            }
-        });
-        formData.dodatniStroji.forEach(s => {
-            if (s.naziv && sIdx <= 10) {
-                payload[`stroj${sIdx}`] = s.naziv === 'Drugo' ? s.drugaNaziv : s.naziv;
-                payload[`stroj${sIdx}Ure`] = timeToDecimal(s.ure, s.minute);
-                payload[`stroj${sIdx}Enota`] = 'ur';
-                sIdx++;
-            }
+        let sIdx = 1; 
+        getPriorityStroji().forEach(s => { const d = formData.priorityStroji[s]; if (d && (d.ure || d.minute)) { payload[`stroj${sIdx}`] = s; payload[`stroj${sIdx}Ure`] = timeToDec(d.ure, d.minute); payload[`stroj${sIdx}Enota`] = 'ur'; sIdx++; } });
+        Object.entries(formData.selectedStroji).forEach(([n, d]) => {
+            if(sIdx>10) return; payload[`stroj${sIdx}`] = n==='Drugo'?d.drugoIme:n; payload[`stroj${sIdx}Ure`] = timeToDec(d.ure, d.minute); payload[`stroj${sIdx}Enota`] = 'ur'; sIdx++;
         });
 
-        formData.materiali.forEach((m, i) => {
-            if (m.material) {
-                let name = m.material === 'Drugo' ? m.drugMaterial : m.material;
-                if (m.vrsta) name += ` ${m.vrsta}`;
-                payload[`material${i+1}`] = name;
-                payload[`material${i+1}Kolicina`] = m.kolicina;
-                payload[`material${i+1}Enota`] = m.enota;
-            }
+        let mIdx = 1; Object.entries(formData.selectedMateriali).forEach(([n, d]) => {
+            if(mIdx>5) return; let nm = n==='Drugo'?d.drugoIme:n; if(d.vrsta) nm+=` ${d.vrsta}`; payload[`material${mIdx}`] = nm; payload[`material${mIdx}Kolicina`] = formatNum(d.kolicina); payload[`material${mIdx}Enota`] = d.enota; mIdx++;
         });
-        
-        formData.odpadki.forEach((o, i) => {
-             if (o.vrsta) {
-                payload[`odpadki${i+1}`] = o.vrsta === 'Drugo' ? o.drugaVrsta : o.vrsta;
-                payload[`odpadki${i+1}Kolicina`] = o.kolicina;
-                payload[`odpadki${i+1}Enota`] = o.enota;
-            }
+
+        let oIdx = 1; Object.entries(formData.selectedOdpadki).forEach(([n, d]) => {
+            if(oIdx>2) return; payload[`odpadki${oIdx}`] = n==='Drugo'?d.drugoIme:n; payload[`odpadki${oIdx}Kolicina`] = formatNum(d.kolicina); payload[`odpadki${oIdx}Enota`] = d.enota; oIdx++;
         });
 
         if (formData.slike.length) {
             payload.slikeCount = formData.slike.length;
-            formData.slike.forEach((img, i) => {
-                payload[`slika${i+1}Name`] = img.name;
-                payload[`slika${i+1}Data`] = img.data;
-            });
+            formData.slike.forEach((img, i) => { payload[`slika${i+1}Name`] = img.name; payload[`slika${i+1}Data`] = img.data; });
         }
 
         try {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = GOOGLE_SHEETS_API_URL;
-            form.target = 'hidden-iframe';
-            form.enctype = 'multipart/form-data'; 
-            
-            Object.entries(payload).forEach(([key, val]) => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = key;
-                input.value = val || '';
-                form.appendChild(input);
-            });
-
-            let iframe = document.getElementById('hidden-iframe');
-            if (!iframe) {
-                iframe = document.createElement('iframe');
-                iframe.id = 'hidden-iframe';
-                iframe.name = 'hidden-iframe';
-                iframe.style.display = 'none';
-                document.body.appendChild(iframe);
-            }
-
-            document.body.appendChild(form);
-            form.submit();
-            document.body.removeChild(form);
+            const form = document.createElement('form'); form.method = 'POST'; form.action = GOOGLE_SHEETS_API_URL; form.target = 'hidden-iframe';
+            Object.entries(payload).forEach(([key, val]) => { const i = document.createElement('input'); i.type = 'hidden'; i.name = key; i.value = val || ''; form.appendChild(i); });
+            if (!document.getElementById('hidden-iframe')) { const ifr = document.createElement('iframe'); ifr.id = 'hidden-iframe'; ifr.name = 'hidden-iframe'; ifr.style.display = 'none'; document.body.appendChild(ifr); }
+            document.body.appendChild(form); form.submit(); document.body.removeChild(form);
 
             setTimeout(() => {
-                clearInterval(progressInterval);
-                setUploadProgress(100);
+                setLoading(false); setStatus({ type: 'success', text: '✅ Uspešno poslano v sistem!' });
+                localStorage.removeItem('dn_flora_state_v11_7'); 
                 
-                setTimeout(() => {
-                    setLoading(false);
-                    setStatus({ type: 'success', text: '✅ Uspešno poslano v sistem!' });
-                    setValidationErrors([]);
-                    localStorage.removeItem('dn_flora_state');
-                    
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    
-                    setTimeout(() => {
-                        if(confirm('Nalog je bil uspešno shranjen! Želite očistiti obrazec in začeti znova?')) {
-                            setFormData(INITIAL_STATE);
-                            setStatus({ type: '', text: '' });
-                            setUploadProgress(0);
-                        } else {
-                            setUploadProgress(0);
-                        }
-                    }, 500);
-
-                }, 400); 
-
-            }, timeoutDuration);
-
-        } catch (e) {
-            clearInterval(progressInterval);
-            setLoading(false);
-            setUploadProgress(0);
-            setStatus({ type: 'error', text: 'Napaka pri pošiljanju: ' + e.message });
-        }
+                setTimeout(() => { 
+                    if(confirm('Nalog je shranjen! Želiš začeti znova?')) { 
+                        resetForm(); 
+                        setStatus({ type: '', text: '' }); 
+                    } 
+                }, 500);
+            }, 3000);
+        } catch (e) { setLoading(false); setStatus({ type: 'error', text: 'Napaka: ' + e.message }); }
     };
+
+    const isLocationRequired = !formData.storitev.includes('mok34') && !formData.storitev.includes('mok35');
 
     return (
         <div className="container">
-            <div className="header">
-                <h1>Delovni nalog</h1>
-                <p>FLORA & SPORT d.o.o.</p>
-            </div>
-
+            <div className="header"><h1>Delovni nalog</h1><p>FLORA & SPORT d.o.o.</p></div>
+            
             <datalist id="ulice-list">
                 {ULICE.map(ulica => <option key={ulica} value={ulica} />)}
             </datalist>
@@ -753,113 +518,50 @@ function App() {
             {validationErrors.length > 0 && (
                 <div className="error-summary fade-in">
                     <strong>⚠️ Prosim dopolnite manjkajoče podatke:</strong>
-                    <ul>
-                        {validationErrors.map((err, i) => <li key={i}>{err}</li>)}
-                    </ul>
+                    <ul style={{margin:'10px 0 0 20px', padding:0}}>{validationErrors.map((e, i) => <li key={i}>{e}</li>)}</ul>
                 </div>
             )}
 
-            {/* OSNOVNI PODATKI */}
+            {/* 0. OSNOVNI PODATKI */}
             <div className="card">
-                <div className="section-title">
-                    <Icon name="doc" /> Osnovni podatki
-                </div>
-                
-                <div style={{marginBottom: 20}}>
-                    <label>Naročnik</label>
-                    <select value={formData.narocnik} onChange={e => updateField('narocnik', e.target.value)}>
+                <div className="section-title"><Icon name="doc" /> Osnovni podatki</div>
+                <div style={{marginBottom: 16}}>
+                    <label>Naročnik <span style={{color: 'var(--danger)'}}>*</span></label>
+                    <select value={formData.narocnik} onChange={e => updateField('narocnik', e.target.value)} className={!formData.narocnik && validationErrors.length ? 'error' : ''}>
+                        <option value="">Izberi naročnika...</option>
                         {LISTS.narocniki.map(n => <option key={n} value={n}>{n}</option>)}
                     </select>
-                    {formData.narocnik === 'Drugo' && (
-                        <input className="mt-2 fade-in" placeholder="Vpiši naročnika" value={formData.narocnikDrugo} onChange={e => updateField('narocnikDrugo', e.target.value)} style={{marginTop:12}}/>
-                    )}
+                    {formData.narocnik === 'Drugo' && <input className={`mt-2 fade-in ${!formData.narocnikDrugo && validationErrors.length ? 'error' : ''}`} placeholder="Vpiši naročnika" value={formData.narocnikDrugo} onChange={e => updateField('narocnikDrugo', e.target.value)} style={{marginTop:12}}/>}
                 </div>
-
-                <div className="grid-2" style={{marginBottom: 20}}>
+                <div className="grid-2" style={{marginBottom: 16}}>
+                    <div><label>Datum <span style={{color: 'var(--danger)'}}>*</span></label><input ref={datePickerRef} placeholder="Izberi datum..." readOnly className={!formData.datum && validationErrors.length ? 'error' : ''} /></div>
                     <div>
-                        <label>Datum</label>
-                        <input ref={datePickerRef} placeholder="Izberi datum..." readOnly className={!formData.datum && validationErrors.length ? 'error' : ''} />
-                    </div>
-                    <div>
-                        <label>Storitev</label>
+                        <label>Storitev <span style={{color: 'var(--danger)'}}>*</span></label>
                         <select value={formData.storitev} onChange={e => { updateField('storitev', e.target.value); updateField('priorityStroji', {}); }} className={!formData.storitev && validationErrors.length ? 'error' : ''}>
                             <option value="">Izberi storitev...</option>
                             {LISTS.storitve.map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
                     </div>
                 </div>
-
-                {formData.storitev === 'Drugo' && (
-                    <div className="fade-in" style={{marginBottom: 20}}>
-                        <label>Vpiši storitev</label>
-                        <input value={formData.storitevDrugo} onChange={e => updateField('storitevDrugo', e.target.value)} placeholder="Opis storitve..." />
-                    </div>
-                )}
+                {formData.storitev === 'Drugo' && <div className="fade-in" style={{marginBottom: 16}}><label>Vpiši storitev</label><input value={formData.storitevDrugo} onChange={e => updateField('storitevDrugo', e.target.value)} placeholder="Opis..." className={!formData.storitevDrugo && validationErrors.length ? 'error' : ''} /></div>}
                 
-                {/* PARKI - Če je Vzdrževanje čistoče */}
-                {formData.storitev.includes('Vzdrževanje čistoče') && (
-                    <div className="fade-in" style={{marginBottom: 20}}>
-                        <label>Izbrani parki (lahko označiš več)</label>
-                        <div className="checkbox-group">
-                            {['mok35a Prešernov gaj', 'mok35b Park slovenske himne', 'mok35c Igrišče Krtek', 'mok35d Igrišče Savica', 'mok35e Bleiweisov park'].map(park => (
-                                <label key={park} className="checkbox-item">
-                                    <input type="checkbox" 
-                                           checked={formData.storitevParki.includes(park)} 
-                                           onChange={(e) => {
-                                               const current = formData.storitevParki || [];
-                                               if (e.target.checked) {
-                                                   updateField('storitevParki', [...current, park]);
-                                               } else {
-                                                   updateField('storitevParki', current.filter(p => p !== park));
-                                               }
-                                           }} 
-                                    />
-                                    <span style={{flex:1, textTransform: 'none', fontWeight: 500, margin: 0}}>{park}</span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* PASJI KOŠI - Če je Čiščenje pasjih košev (Radio Gumbi) */}
-                {formData.storitev.includes('Čiščenje pasjih košev') && (
-                    <div className="fade-in" style={{marginBottom: 20}}>
-                        <label>Vrsta košev (izberi eno opcijo)</label>
-                        <div className="checkbox-group">
-                            {['mok34a Čiščenje košev za pasje iztrebke na 7 dni', 'mok34b Čiščenje košev za pasje iztrebke na 14 dni'].map(kos => (
-                                <label key={kos} className="checkbox-item">
-                                    <input type="radio" 
-                                           name="pasji_kosi_radio"
-                                           checked={formData.storitevPasjiKosi.includes(kos)} 
-                                           onChange={(e) => {
-                                               if (e.target.checked) {
-                                                   updateField('storitevPasjiKosi', [kos]);
-                                               }
-                                           }} 
-                                    />
-                                    <span style={{flex:1, textTransform: 'none', fontWeight: 500, margin: 0}}>{kos}</span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* VIŠINE - Če je Obrez ali Posek */}
-                {(formData.storitev.includes('Obrez') || formData.storitev.includes('Posek')) && (
-                    <div className="fade-in" style={{marginBottom: 20}}>
-                        <label>Višine (kos)</label>
+                {/* VIŠINE DREVES */}
+                {(formData.storitev.includes('Obrez') || formData.storitev.includes('Posek') || formData.storitev.includes('Odščip')) && (
+                    <div className="fade-in priority-box" style={{marginBottom: 20}}>
+                        <label style={{color: '#166534', marginBottom: 16}}>Višine dreves in količina (kos)</label>
                         <div className="checkbox-group">
                             {['do 5m', '5-10m', '10-15m', 'nad 15m'].map((label, idx) => (
-                                <label key={idx} className="checkbox-item">
-                                    <input type="checkbox" checked={formData.storitevVisine[idx].selected} 
+                                <label key={idx} className="checkbox-item" style={{border: '1.5px solid var(--gray-200)', borderRadius: '12px', display: 'flex', alignItems: 'center', background: 'white'}}>
+                                    <input type="checkbox" checked={formData.storitevVisine[idx].selected}
                                            onChange={() => {
                                                const newV = [...formData.storitevVisine];
                                                newV[idx].selected = !newV[idx].selected;
+                                               if(!newV[idx].selected) newV[idx].kolicina = '';
                                                updateField('storitevVisine', newV);
                                            }} />
-                                    <span style={{flex:1, textTransform: 'none', fontWeight: 500, margin: 0}}>{label}</span>
-                                    {formData.storitevVisine[idx].selected && 
-                                        <input type="number" placeholder="Kol." style={{width: 80, padding: 8}} 
+                                    <span style={{flex:1, fontWeight: 500}}>{label}</span>
+                                    {formData.storitevVisine[idx].selected &&
+                                        <input type="number" placeholder="Količina" style={{width: 90, padding: '8px 12px', margin: 0}}
                                                value={formData.storitevVisine[idx].kolicina}
                                                onClick={e => e.preventDefault()}
                                                onChange={(e) => {
@@ -873,57 +575,65 @@ function App() {
                         </div>
                     </div>
                 )}
-                 
-                 <div style={{marginBottom: 8}}>
-                     <label>Količina / Dodaten opis</label>
-                     <input type="text" value={formData.storitevKolicina} onChange={e => updateField('storitevKolicina', e.target.value)} placeholder="npr. 50 m2 ali posebnosti" />
-                 </div>
+
+                {formData.storitev.includes('Vzdrževanje čistoče') && (
+                    <div className="fade-in" style={{marginBottom: 20}}>
+                        <label>Izbrani parki (lahko označiš več)</label>
+                        <div className="checkbox-group" style={{display: 'flex', flexDirection: 'column'}}>
+                            {['mok35a Prešernov gaj', 'mok35b Park slovenske himne', 'mok35c Igrišče Krtek', 'mok35d Igrišče Savica', 'mok35e Bleiweisov park'].map(park => (
+                                <label key={park} className="checkbox-item" style={{border: '1.5px solid var(--gray-200)', borderRadius: '12px', width: '100%'}}>
+                                    <input type="checkbox" checked={formData.storitevParki.includes(park)} onChange={(e) => { const c = formData.storitevParki||[]; if(e.target.checked) updateField('storitevParki', [...c, park]); else updateField('storitevParki', c.filter(p=>p!==park)); }} />
+                                    <span>{park}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+                )}
+                {formData.storitev.includes('Čiščenje pasjih košev') && (
+                    <div className="fade-in" style={{marginBottom: 20}}>
+                        <label>Vrsta košev</label>
+                        <div className="checkbox-group" style={{display: 'flex', flexDirection: 'column'}}>
+                            {['mok34a Čiščenje na 7 dni', 'mok34b Čiščenje na 14 dni'].map(kos => (
+                                <label key={kos} className="checkbox-item" style={{border: '1.5px solid var(--gray-200)', borderRadius: '12px', width: '100%'}}>
+                                    <input type="radio" name="kosi" checked={formData.storitevPasjiKosi.includes(kos)} onChange={(e) => { if(e.target.checked) updateField('storitevPasjiKosi', [kos]); }} />
+                                    <span>{kos}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+                )}
+                <div style={{marginBottom: 8}}><label>Dodatna količina / Opis</label><input type="text" value={formData.storitevKolicina} onChange={e => updateField('storitevKolicina', e.target.value)} placeholder="npr. 50 m2 ali posebnosti" /></div>
             </div>
 
-            {/* LOKACIJA */}
+            {/* 1. LOKACIJA */}
             <div className="card">
                 <div className="section-title">
-                    <Icon name="location" /> Lokacija dela
+                    <Icon name="location" /> Lokacija dela 
+                    {isLocationRequired && <span style={{color: 'var(--danger)', marginLeft: '4px'}}>*</span>}
                 </div>
                 <div className="grid-2">
                     <div>
-                        <label style={{color: '#16a34a'}}><Icon name="check" size={18} /> Končano</label>
+                        <label style={{color: '#16a34a'}}>Končano</label>
                         {formData.obmocjeKoncano.map((item, idx) => (
                             (idx === 0 || formData.obmocjeKoncano[idx-1].obmocje) && (
                                 <div key={idx} className={idx > 0 ? "fade-in" : ""} style={{marginBottom: 12}}>
-                                    <select value={item.obmocje} onChange={e => updateArrayItem('obmocjeKoncano', idx, 'obmocje', e.target.value)}>
-                                        <option value="">Izberi območje...</option>
-                                        {LISTS.obmocja.map(o => <option key={o} value={o}>{o}</option>)}
+                                    <select value={item.obmocje} onChange={e => updateLocArray('obmocjeKoncano', idx, 'obmocje', e.target.value)}>
+                                        <option value="">Izberi...</option>{LISTS.obmocja.map(o => <option key={o} value={o}>{o}</option>)}
                                     </select>
-                                    {item.obmocje === 'Drugo' && (
-                                        <input 
-                                            list="ulice-list" placeholder="Začni tipkati ulico..." 
-                                            value={item.drugo} onChange={e => updateArrayItem('obmocjeKoncano', idx, 'drugo', e.target.value)} 
-                                            className={"fade-in " + ((!item.drugo && validationErrors.length > 0) ? 'error' : '')}
-                                            style={{marginTop: 8}} 
-                                        />
-                                    )}
+                                    {item.obmocje === 'Drugo' && <input list="ulice-list" placeholder="Začni tipkati ulico..." value={item.drugo} onChange={e => updateLocArray('obmocjeKoncano', idx, 'drugo', e.target.value)} style={{marginTop: 8}} className={isLocationRequired && !item.drugo && validationErrors.length ? 'error' : ''} />}
                                 </div>
                             )
                         ))}
                     </div>
                     <div>
-                        <label style={{color: '#ea580c'}}><Icon name="clock" size={18} /> Nedokončano</label>
+                        <label style={{color: '#ea580c'}}>Nedokončano</label>
                         {formData.obmocjeNedokoncano.map((item, idx) => (
                             (idx === 0 || formData.obmocjeNedokoncano[idx-1].obmocje) && (
                                 <div key={idx} className={idx > 0 ? "fade-in" : ""} style={{marginBottom: 12}}>
-                                    <select value={item.obmocje} onChange={e => updateArrayItem('obmocjeNedokoncano', idx, 'obmocje', e.target.value)}>
-                                        <option value="">Izberi območje...</option>
-                                        {LISTS.obmocja.map(o => <option key={o} value={o}>{o}</option>)}
+                                    <select value={item.obmocje} onChange={e => updateLocArray('obmocjeNedokoncano', idx, 'obmocje', e.target.value)}>
+                                        <option value="">Izberi...</option>{LISTS.obmocja.map(o => <option key={o} value={o}>{o}</option>)}
                                     </select>
-                                    {item.obmocje === 'Drugo' && (
-                                        <input 
-                                            list="ulice-list" placeholder="Začni tipkati ulico..." 
-                                            value={item.drugo} onChange={e => updateArrayItem('obmocjeNedokoncano', idx, 'drugo', e.target.value)} 
-                                            className={"fade-in " + ((!item.drugo && validationErrors.length > 0) ? 'error' : '')}
-                                            style={{marginTop: 8}} 
-                                        />
-                                    )}
+                                    {item.obmocje === 'Drugo' && <input list="ulice-list" placeholder="Začni tipkati ulico..." value={item.drugo} onChange={e => updateLocArray('obmocjeNedokoncano', idx, 'drugo', e.target.value)} style={{marginTop: 8}} className={isLocationRequired && !item.drugo && validationErrors.length ? 'error' : ''} />}
                                 </div>
                             )
                         ))}
@@ -931,66 +641,48 @@ function App() {
                 </div>
             </div>
 
-            {/* DELAVCI */}
+            {/* 2. DELAVCI */}
             <div className="card">
-                <div className="section-title">
-                    <Icon name="users" /> 1. Prisotni delavci
-                </div>
-                {formData.delavci.map((d, idx) => (
-                    (idx === 0 || formData.delavci[idx-1].ime) && (
-                        <div key={idx} className={idx > 0 ? "fade-in" : ""} style={{display: 'flex', gap: 12, marginBottom: 16, alignItems: 'flex-start'}}>
-                            <div style={{flex: 2}}>
-                                <select value={d.ime} onChange={e => updateArrayItem('delavci', idx, 'ime', e.target.value)}>
-                                    <option value="">Delavec {idx + 1}...</option>
-                                    {LISTS.delavci.filter(x => x === 'Drugo' || !formData.delavci.find((wd, wi) => wi !== idx && wd.ime === x)).map(x => (
-                                        <option key={x} value={x}>{x}</option>
-                                    ))}
-                                </select>
-                                {d.ime === 'Drugo' && <input placeholder="Ime in priimek..." value={d.drugaIme} onChange={e => updateArrayItem('delavci', idx, 'drugaIme', e.target.value)} style={{marginTop:8}} className="fade-in" />}
-                            </div>
-                            <div style={{width: 140}}>
-                                <TimeInput ure={d.ure} minute={d.minute} 
-                                    hasError={d.ime && !d.ure && !d.minute && validationErrors.length > 0}
-                                    onChangeUre={v => updateArrayItem('delavci', idx, 'ure', v)}
-                                    onChangeMinute={v => updateArrayItem('delavci', idx, 'minute', v)} />
-                            </div>
+                <div className="section-title"><Icon name="users" /> 1. Prisotni delavci <span style={{color: 'var(--danger)', marginLeft: '4px'}}>*</span></div>
+                
+                <MultiSelectDropdown title="Izberi delavce (klikni)..." options={LISTS.delavci} selectedData={formData.selectedDelavci} onToggle={n => handleToggle('selectedDelavci', n, {ure:'', minute:'', drugoIme:''})} hasError={Object.keys(formData.selectedDelavci).length === 0 && validationErrors.length > 0} />
+                
+                {Object.entries(formData.selectedDelavci).map(([name, data]) => (
+                    <div key={name} className="fade-in" style={{display:'flex', gap: 12, marginBottom: 12, alignItems: 'center'}}>
+                        <div style={{flex: 1, fontWeight: 500}}>
+                            {name === 'Drugo' ? <input placeholder="Vpiši ime..." value={data.drugoIme} onChange={e => handleUpdate('selectedDelavci', name, 'drugoIme', e.target.value)} className={validationErrors.length && !data.drugoIme ? 'error' : ''} /> : name}
                         </div>
-                    )
+                        <div style={{width: 140}}>
+                            <TimeInput ure={data.ure} minute={data.minute} onChangeUre={v => handleUpdate('selectedDelavci', name, 'ure', v)} onChangeMinute={v => handleUpdate('selectedDelavci', name, 'minute', v)} hasError={validationErrors.length && !data.ure && !data.minute} />
+                        </div>
+                    </div>
                 ))}
             </div>
 
-            {/* VOZILA */}
+            {/* 3. VOZILA */}
             <div className="card">
-                <div className="section-title">
-                    <Icon name="truck" /> 2. Potni nalog
-                </div>
-                {formData.vozila.map((v, idx) => (
-                    (idx === 0 || formData.vozila[idx-1].vozilo) && (
-                        <div key={idx} className={"grid-2 " + (idx > 0 ? "fade-in" : "")} style={{marginBottom: 16}}>
-                            <div>
-                                <select value={v.vozilo} onChange={e => updateArrayItem('vozila', idx, 'vozilo', e.target.value)}>
-                                    <option value="">Izberi vozilo {idx + 1}...</option>
-                                    {LISTS.vozila.filter(x => x === 'Drugo' || !formData.vozila.find((wv, wi) => wi !== idx && wv.vozilo === x)).map(x => (
-                                        <option key={x} value={x}>{x}</option>
-                                    ))}
-                                </select>
-                                {v.vozilo === 'Drugo' && <input placeholder="Vpiši registrsko..." value={v.drugaReg} onChange={e => updateArrayItem('vozila', idx, 'drugaReg', e.target.value)} style={{marginTop:8}} className="fade-in" />}
-                            </div>
-                            <input type="number" placeholder="Prevoženi km" value={v.km} 
-                                className={v.vozilo && !v.km && validationErrors.length > 0 ? 'error' : ''}
-                                onChange={e => updateArrayItem('vozila', idx, 'km', e.target.value)} />
+                <div className="section-title"><Icon name="truck" /> 2. Potni nalog (Vozila)</div>
+                
+                <MultiSelectDropdown title="Izberi vozila (klikni)..." options={LISTS.vozila} selectedData={formData.selectedVozila} onToggle={n => handleToggle('selectedVozila', n, {km:'', drugoIme:''})} />
+
+                {Object.entries(formData.selectedVozila).map(([name, data]) => (
+                    <div key={name} className="fade-in grid-2" style={{marginBottom: 12, alignItems: 'center'}}>
+                        <div style={{fontWeight: 500}}>
+                            {name === 'Drugo' ? <input placeholder="Vpiši reg..." value={data.drugoIme} onChange={e => handleUpdate('selectedVozila', name, 'drugoIme', e.target.value)} className={validationErrors.length && !data.drugoIme ? 'error' : ''} /> : name}
                         </div>
-                    )
+                        <div>
+                            <input type="number" placeholder="Prevoženi km" value={data.km} onChange={e => handleUpdate('selectedVozila', name, 'km', e.target.value)} className={validationErrors.length && !data.km ? 'error' : ''} />
+                        </div>
+                    </div>
                 ))}
             </div>
 
-            {/* STROJI */}
+            {/* 4. STROJI */}
             <div className="card">
-                <div className="section-title">
-                    <Icon name="cog" /> 3. Strojno delo
-                </div>
+                <div className="section-title"><Icon name="cog" /> 3. Strojno delo</div>
+                
                 {formData.storitev && (
-                    <div className="priority-box fade-in">
+                    <div className="priority-box fade-in" style={{marginBottom: 20}}>
                         <label style={{color: '#166534', marginBottom: 16}}>Priporočeni stroji za izbrano delo:</label>
                         {getPriorityStroji().map(stroj => (
                             <div key={stroj} style={{display: 'flex', justifyContent:'space-between', alignItems:'center', gap: 12, marginBottom: 12}}>
@@ -1008,165 +700,110 @@ function App() {
                     </div>
                 )}
                 
-                <label style={{marginBottom: 12}}>Ostali stroji:</label>
-                {formData.dodatniStroji.map((s, idx) => (
-                    (idx === 0 || formData.dodatniStroji[idx-1].naziv) && (
-                        <div key={idx} className={idx > 0 ? "fade-in" : ""} style={{display: 'flex', gap: 12, marginBottom: 16}}>
-                            <div style={{flex: 2}}>
-                                <select value={s.naziv} onChange={e => updateArrayItem('dodatniStroji', idx, 'naziv', e.target.value)}>
-                                    <option value="">Izberi stroj...</option>
-                                    {LISTS.stroji.filter(x => !getPriorityStroji().includes(x)).map(x => <option key={x} value={x}>{x}</option>)}
-                                </select>
-                                {s.naziv === 'Drugo' && <input placeholder="Naziv stroja..." value={s.drugaNaziv} onChange={e => updateArrayItem('dodatniStroji', idx, 'drugaNaziv', e.target.value)} style={{marginTop:8}} className="fade-in" />}
-                            </div>
-                            <div style={{width: 140}}>
-                                <TimeInput ure={s.ure} minute={s.minute} 
-                                    hasError={s.naziv && !s.ure && !s.minute && validationErrors.length > 0}
-                                    onChangeUre={v => updateArrayItem('dodatniStroji', idx, 'ure', v)}
-                                    onChangeMinute={v => updateArrayItem('dodatniStroji', idx, 'minute', v)} />
-                            </div>
+                <label style={{marginBottom: 8}}>Ostali stroji:</label>
+                <MultiSelectDropdown title="Izberi ostale stroje..." options={LISTS.stroji.filter(s => !getPriorityStroji().includes(s))} selectedData={formData.selectedStroji} onToggle={n => handleToggle('selectedStroji', n, {ure:'', minute:'', drugoIme:''})} />
+
+                {Object.entries(formData.selectedStroji).map(([name, data]) => (
+                    <div key={name} className="fade-in" style={{display:'flex', gap: 12, marginBottom: 12, alignItems: 'center'}}>
+                        <div style={{flex: 1, fontWeight: 500}}>
+                            {name === 'Drugo' ? <input placeholder="Vpiši naziv..." value={data.drugoIme} onChange={e => handleUpdate('selectedStroji', name, 'drugoIme', e.target.value)} className={validationErrors.length && !data.drugoIme ? 'error' : ''} /> : name}
                         </div>
-                    )
+                        <div style={{width: 140}}>
+                            <TimeInput ure={data.ure} minute={data.minute} onChangeUre={v => handleUpdate('selectedStroji', name, 'ure', v)} onChangeMinute={v => handleUpdate('selectedStroji', name, 'minute', v)} hasError={validationErrors.length && !data.ure && !data.minute} />
+                        </div>
+                    </div>
                 ))}
             </div>
 
-            {/* MATERIALI */}
+            {/* 5. MATERIALI */}
             <div className="card">
-                <div className="section-title">
-                    <Icon name="box" /> 4. Poraba materiala
-                </div>
-                {formData.materiali.map((m, idx) => (
-                    (idx === 0 || formData.materiali[idx-1].material) && (
-                        <div key={idx} className={idx > 0 ? "fade-in" : ""} style={{marginBottom: 16, borderBottom: idx < formData.materiali.length - 1 && m.material ? '1px solid var(--gray-200)' : 'none', paddingBottom: idx < formData.materiali.length - 1 && m.material ? 16 : 0}}>
-                            <div className="grid-3">
-                                <select value={m.material} onChange={e => updateArrayItem('materiali', idx, 'material', e.target.value)}>
-                                    <option value="">Izberi material...</option>
-                                    {LISTS.materiali.map(x => <option key={x} value={x}>{x}</option>)}
-                                </select>
-                                <input type="number" placeholder="Količina" value={m.kolicina} 
-                                    className={m.material && !m.kolicina && validationErrors.length > 0 ? 'error' : ''}
-                                    onChange={e => updateArrayItem('materiali', idx, 'kolicina', e.target.value)} />
-                                <select value={m.enota} onChange={e => updateArrayItem('materiali', idx, 'enota', e.target.value)}>
-                                    <option value="">Enota</option>
-                                    {LISTS.enote.map(x => <option key={x} value={x}>{x}</option>)}
-                                </select>
-                            </div>
-                            {(m.material === 'Gnojilo' || m.material === 'Travno seme') && 
-                                <input placeholder="Vrsta (npr. NPK 15-15-15)" value={m.vrsta} onChange={e => updateArrayItem('materiali', idx, 'vrsta', e.target.value)} style={{marginTop: 8}} className="fade-in" />
-                            }
-                            {m.material === 'Drugo' && 
-                                <input placeholder="Vpiši naziv materiala..." value={m.drugMaterial} onChange={e => updateArrayItem('materiali', idx, 'drugMaterial', e.target.value)} style={{marginTop: 8}} className="fade-in" />
-                            }
+                <div className="section-title"><Icon name="box" /> 4. Poraba materiala</div>
+                
+                <MultiSelectDropdown title="Izberi materiale..." options={LISTS.materiali} selectedData={formData.selectedMateriali} onToggle={n => handleToggle('selectedMateriali', n, {kolicina:'', vrsta:'', drugoIme:'', enota: MATERIAL_ENOTE[n] || 'kos'})} />
+
+                {Object.entries(formData.selectedMateriali).map(([name, data]) => (
+                    <div key={name} className="fade-in" style={{marginBottom: 16, borderBottom: '1px solid var(--gray-100)', paddingBottom: 16}}>
+                        <div style={{fontWeight: 600, marginBottom: 8}}>
+                            {name === 'Drugo' ? <input placeholder="Vpiši naziv..." value={data.drugoIme} onChange={e => handleUpdate('selectedMateriali', name, 'drugoIme', e.target.value)} className={validationErrors.length && !data.drugoIme ? 'error' : ''} /> : name}
                         </div>
-                    )
+                        <div className="grid-2">
+                            <input type="number" placeholder="Količina" value={data.kolicina} onChange={e => handleUpdate('selectedMateriali', name, 'kolicina', e.target.value)} className={validationErrors.length && !data.kolicina ? 'error' : ''} />
+                            
+                            <div className="unit-display">
+                                {name === 'Drugo' ? 
+                                    <input placeholder="Enota..." value={data.enota} onChange={e => handleUpdate('selectedMateriali', name, 'enota', e.target.value)} className={validationErrors.length && !data.enota ? 'error' : ''} /> 
+                                    : data.enota
+                                }
+                            </div>
+                        </div>
+                        {(name === 'Gnojilo' || name === 'Travno seme') && <input placeholder="Vrsta (npr. NPK 15-15-15)" value={data.vrsta} onChange={e => handleUpdate('selectedMateriali', name, 'vrsta', e.target.value)} style={{marginTop: 8}} />}
+                    </div>
                 ))}
             </div>
 
-            {/* ODPADKI */}
+            {/* 6. ODPADKI */}
             <div className="card">
-                <div className="section-title">
-                    <Icon name="trash" /> 5. Odpadki
-                </div>
-                {formData.odpadki.map((o, idx) => (
-                    (idx === 0 || formData.odpadki[idx-1].vrsta) && (
-                        <div key={idx} className={idx > 0 ? "fade-in" : ""} style={{marginBottom: 16, borderBottom: idx < formData.odpadki.length - 1 && o.vrsta ? '1px solid var(--gray-200)' : 'none', paddingBottom: idx < formData.odpadki.length - 1 && o.vrsta ? 16 : 0}}>
-                            <div className="grid-3">
-                                <select value={o.vrsta} onChange={e => updateArrayItem('odpadki', idx, 'vrsta', e.target.value)}>
-                                    <option value="">Vrsta odpadka...</option>
-                                    {LISTS.odpadki.map(x => <option key={x} value={x}>{x}</option>)}
-                                </select>
-                                <input type="number" placeholder="Količina" value={o.kolicina} 
-                                    className={o.vrsta && !o.kolicina && validationErrors.length > 0 ? 'error' : ''}
-                                    onChange={e => updateArrayItem('odpadki', idx, 'kolicina', e.target.value)} />
-                                <select value={o.enota} onChange={e => updateArrayItem('odpadki', idx, 'enota', e.target.value)}>
-                                    <option value="">Enota</option>
-                                    {LISTS.enote.map(x => <option key={x} value={x}>{x}</option>)}
-                                </select>
-                            </div>
-                            {o.vrsta === 'Drugo' && 
-                                <input placeholder="Vpiši vrsto odpadka..." value={o.drugaVrsta} onChange={e => updateArrayItem('odpadki', idx, 'drugaVrsta', e.target.value)} style={{marginTop: 8}} className="fade-in" />
-                            }
+                <div className="section-title"><Icon name="trash" /> 5. Odpadki</div>
+                
+                <MultiSelectDropdown title="Izberi odpadke..." options={LISTS.odpadki} selectedData={formData.selectedOdpadki} onToggle={n => handleToggle('selectedOdpadki', n, {kolicina:'', drugoIme:'', enota: ODPADKI_ENOTE[n] || 'm³'})} />
+
+                {Object.entries(formData.selectedOdpadki).map(([name, data]) => (
+                    <div key={name} className="fade-in" style={{marginBottom: 16}}>
+                        <div style={{fontWeight: 600, marginBottom: 8}}>
+                            {name === 'Drugo' ? <input placeholder="Vpiši vrsto..." value={data.drugoIme} onChange={e => handleUpdate('selectedOdpadki', name, 'drugoIme', e.target.value)} className={validationErrors.length && !data.drugoIme ? 'error' : ''} /> : name}
                         </div>
-                    )
+                        <div className="grid-2">
+                            <input type="number" placeholder="Količina" value={data.kolicina} onChange={e => handleUpdate('selectedOdpadki', name, 'kolicina', e.target.value)} className={validationErrors.length && !data.kolicina ? 'error' : ''} />
+                            
+                            <div className="unit-display">
+                                {name === 'Drugo' ? 
+                                    <input placeholder="Enota..." value={data.enota} onChange={e => handleUpdate('selectedOdpadki', name, 'enota', e.target.value)} className={validationErrors.length && !data.enota ? 'error' : ''} /> 
+                                    : data.enota
+                                }
+                            </div>
+                        </div>
+                    </div>
                 ))}
             </div>
 
-            {/* SLIKE */}
+            {/* 7. SLIKE */}
             <div className="card">
-                <div className="section-title">
-                    <Icon name="camera" /> 6. Slike s terena
-                </div>
+                <div className="section-title"><Icon name="camera" /> 6. Slike s terena</div>
                 <label className="upload-box">
-                    <Icon name="camera" size={48} />
-                    <span>Pritisni za dodajanje slik (največ 5)</span>
+                    <Icon name="camera" size={48} /><span>Pritisni za dodajanje slik (največ 5)</span>
                     <input type="file" multiple accept="image/*" onChange={handleImageUpload} style={{display: 'none'}} />
                 </label>
                 <div className="img-grid">
                     {formData.slike.map((img, i) => (
                         <div key={i} className="img-preview fade-in">
                             <img src={img.data} alt="predogled" />
-                            <button className="img-remove" onClick={() => setFormData(p => ({...p, slike: p.slike.filter((_, idx) => idx !== i)}))}>
-                                <Icon name="close" size={16} />
-                            </button>
+                            <button className="img-remove" onClick={() => setFormData(p => ({...p, slike: p.slike.filter((_, idx) => idx !== i)}))}><Icon name="close" size={16} /></button>
                         </div>
                     ))}
                 </div>
             </div>
 
-            {/* ZAKLJUČEK */}
+            {/* 8. ZAKLJUČEK */}
             <div className="card">
-                <div className="section-title">
-                    <Icon name="check" /> Zaključek
-                </div>
-                
-                <div style={{marginBottom: 20}}>
-                    <label>Opombe</label>
-                    <textarea rows="3" value={formData.opombe} onChange={e => updateField('opombe', e.target.value)} placeholder="Tukaj zapišite morebitne posebnosti, težave ali opažanja..."></textarea>
-                </div>
-                
+                <div className="section-title"><Icon name="check" /> Zaključek <span style={{color: 'var(--danger)', marginLeft: '4px'}}>*</span></div>
+                <div style={{marginBottom: 20}}><label>Opombe</label><textarea rows="3" value={formData.opombe} onChange={e => updateField('opombe', e.target.value)} placeholder="Težave ali opažanja..."></textarea></div>
                 <div style={{marginBottom: 24}}>
-                    <label>Podpis odgovornega delavca</label>
+                    <label>Podpis odgovornega delavca <span style={{color: 'var(--danger)'}}>*</span></label>
                     <select value={formData.podpisOdgovornega} onChange={e => updateField('podpisOdgovornega', e.target.value)} className={!formData.podpisOdgovornega && !formData.podpisDrugo && validationErrors.length ? 'error' : ''}>
                         <option value="">Izberi ime...</option>
                         {LISTS.delavci.filter(d => d !== 'Drugo').map(d => <option key={d} value={d}>{d}</option>)}
                         <option value="Drugo">Drugo</option>
                     </select>
-                    {formData.podpisOdgovornega === 'Drugo' && 
-                        <input placeholder="Vpiši ime in priimek" value={formData.podpisDrugo} onChange={e => updateField('podpisDrugo', e.target.value)} style={{marginTop: 12}} className="fade-in" />
-                    }
+                    {formData.podpisOdgovornega === 'Drugo' && <input placeholder="Vpiši ime in priimek" value={formData.podpisDrugo} onChange={e => updateField('podpisDrugo', e.target.value)} style={{marginTop: 12}} className={`fade-in ${!formData.podpisDrugo && validationErrors.length ? 'error' : ''}`} />}
                 </div>
 
-                {status.text && status.type === 'error' && (
-                    <div className="fade-in" style={{
-                        padding: '16px', borderRadius: '12px', marginBottom: '24px', textAlign: 'center', fontWeight: '600',
-                        background: 'var(--danger-light)', color: '#991b1b', border: `1.5px solid #fca5a5`
-                    }}>
-                        {status.text}
-                    </div>
-                )}
+                {status.text && status.type === 'error' && <div className="fade-in error-summary" style={{textAlign: 'center'}}>{status.text}</div>}
 
-                <div style={{position: 'relative'}}>
-                    <button className="btn btn-primary" onClick={handleSubmit} disabled={loading} style={{padding: '20px', fontSize: '1.15rem', position: 'relative', zIndex: 2}}>
-                        {loading ? '⏳ Obdelujem podatke...' : <><Icon name="send" /> Oddaj delovni nalog</>}
-                    </button>
-                    
-                    {loading && (
-                        <div className="fade-in" style={{marginTop: '16px', background: 'var(--gray-200)', borderRadius: '8px', overflow: 'hidden', height: '10px'}}>
-                            <div style={{
-                                width: `${uploadProgress}%`, height: '100%', background: 'var(--primary)', 
-                                transition: 'width 0.2s linear', boxShadow: '0 0 10px rgba(133,181,69,0.5)'
-                            }}></div>
-                        </div>
-                    )}
-                    {loading && uploadProgress > 0 && (
-                        <div style={{textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '6px', fontWeight: '600'}}>
-                            Nalagam podatke... {Math.round(uploadProgress)}%
-                        </div>
-                    )}
-                </div>
-                
+                <button className="btn btn-primary" onClick={handleSubmit} disabled={loading} style={{padding: '20px', fontSize: '1.15rem'}}>
+                    {loading ? '⏳ Obdelujem...' : <><Icon name="send" /> Oddaj nalog</>}
+                </button>
                 <button className="btn btn-secondary" disabled={loading} style={{marginTop: 24, background: 'transparent', border: 'none', color: 'var(--text-muted)'}} 
-                    onClick={() => { if(confirm('Ste prepričani, da želite izbrisati vse vnešene podatke?')) { setFormData(INITIAL_STATE); setValidationErrors([]); window.scrollTo(0,0); } }}>
+                    onClick={() => { if(confirm('Izbrišem vse vnešene podatke?')) { resetForm(); } }}>
                     <Icon name="trash" size={20} /> Izbriši in začni znova
                 </button>
             </div>
