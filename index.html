@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>FLORA & SPORT - Delovni nalog v11.7</title>
+    <title>FLORA & SPORT - Delovni nalog v11.9</title>
     
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -166,7 +166,7 @@ const ULICE = [
 ];
 
 const LISTS = {
-    narocniki: ['Mestna Občina Kranj', 'Drugo'],
+    narocniki: ['Mestna Občina Kranj', 'Občina Šenčur', 'Drugo'],
     storitve: [
         'mok01 Sajenje cvetja v grede', 'mok02 Sajenje trajnic in vrtnic', 'mok03 Zasaditev korit',
         'mok04-06 Oskrba cvetja in trajnic', 'mok07-09 Oskrba grmovnic in živih mej', 'mok10 Zasaditev živih mej',
@@ -287,14 +287,14 @@ const INITIAL_STATE = {
 };
 
 function App() {
-    const loadState = () => { const saved = localStorage.getItem('dn_flora_state_v11_7'); return saved ? JSON.parse(saved) : INITIAL_STATE; };
+    const loadState = () => { const saved = localStorage.getItem('dn_flora_state_v11_9'); return saved ? JSON.parse(saved) : INITIAL_STATE; };
     const [formData, setFormData] = useState(loadState);
     const [status, setStatus] = useState({ type: '', text: '' });
     const [loading, setLoading] = useState(false);
     const [validationErrors, setValidationErrors] = useState([]);
     const datePickerRef = useRef(null);
 
-    useEffect(() => { localStorage.setItem('dn_flora_state_v11_7', JSON.stringify(formData)); }, [formData]);
+    useEffect(() => { localStorage.setItem('dn_flora_state_v11_9', JSON.stringify(formData)); }, [formData]);
 
     useEffect(() => {
         if (datePickerRef.current) {
@@ -431,7 +431,6 @@ function App() {
 
         setLoading(true); setStatus({ type: 'info', text: 'Pošiljam podatke...' });
 
-        // FUNKCIJE ZA PRETVORBO DECIMALE V VEJICO
         const formatNum = (num) => num ? num.toString().replace(/\./g, ',') : '';
         const timeToDec = (h, m) => {
             const dec = parseFloat(h||0) + parseFloat(m||0)/60;
@@ -454,7 +453,6 @@ function App() {
         };
         
         const visLabels = ['do 5m', '5-10m', '10-15m', 'nad 15m'];
-        // Tudi tukaj dodamo formatNum, da bodo količine dreves z vejico (če bi kdo vpisal npr 1.5 drevesa)
         payload.visine = formData.storitevVisine.map((v, i) => v.selected ? `${formatNum(v.kolicina || 0)}x ${visLabels[i]}` : null).filter(Boolean).join('||');
 
         let dIdx = 1; Object.entries(formData.selectedDelavci).forEach(([n, d]) => {
@@ -462,7 +460,6 @@ function App() {
         });
 
         let vIdx = 1; Object.entries(formData.selectedVozila).forEach(([n, d]) => {
-            // formatNum pretvori npr. 10.5 km v 10,5 km
             if(vIdx>5) return; payload[`vozilo${vIdx}`] = n==='Drugo'?d.drugoIme:n; payload[`vozilo${vIdx}Km`] = formatNum(d.km); payload[`vozilo${vIdx}Enota`] = 'km'; vIdx++;
         });
 
@@ -493,7 +490,7 @@ function App() {
 
             setTimeout(() => {
                 setLoading(false); setStatus({ type: 'success', text: '✅ Uspešno poslano v sistem!' });
-                localStorage.removeItem('dn_flora_state_v11_7'); 
+                localStorage.removeItem('dn_flora_state_v11_9'); 
                 
                 setTimeout(() => { 
                     if(confirm('Nalog je shranjen! Želiš začeti znova?')) { 
