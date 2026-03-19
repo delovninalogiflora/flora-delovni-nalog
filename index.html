@@ -184,9 +184,13 @@ const LISTS = {
         '12. Drulovka', '13. Savska', '14. Rudija Šeliga', '15. Brdo', 'Drugo'
     ],
     delavci: [
-        'Anja STANONIK', 'Bine KUMER', 'Boštjan BIZJAK', 'David ZAVRL', 'Dejan PETKOVSKI', 
-        'Mitja POTOČNIK', 'Robert ERDELJEC', 'Simon REPNIK', 'Uroš PINTAR', 'Zoran MIČANOVIĆ', 
-        'Zoran STRUPI', 'PAUNOVSKI 1', 'PAUNOVSKI 2', 'PAUNOVSKI 3', 'PAUNOVSKI 4', 'Drugo'
+        'Andrej KREK', 'Anja STANONIK', 'Bine KUMER', 'Blaž ŠORLI', 'Boštjan BIZJAK', 
+        'David ZAVRL', 'Dejan PETKOVSKI', 'Edvard SAJOVIC', 'Jure UDIR', 'Mitja POTOČNIK', 
+        'Nabin THAPA', 'Robert ERDELJEC', 'Sanel DJURKOVIĆ TAVČAR', 'Simon REPNIK', 
+        'Sonam THAPA', 'Tomaž KOŽELJ', 'Uroš PINTAR', 'Zoran MIČANOVIĆ', 'Zoran STRUPI', 
+        'Žiga PAVLIN',
+        'PAUNOVSKI 1', 'PAUNOVSKI 2', 'PAUNOVSKI 3', 'PAUNOVSKI 4',
+        'Drugo 1', 'Drugo 2', 'Drugo 3'
     ],
     vozila: [
         'KR AA-131 Master Cerada', 'KR AF-471 Master', 'KR GS-288 Master', 
@@ -375,7 +379,7 @@ function App() {
         delavciKeys.forEach(name => {
             const d = formData.selectedDelavci[name];
             if (!d.ure && !d.minute) errs.push(`Delavec (${name}): Vpiši ure ali minute!`);
-            if (name === 'Drugo' && !d.drugoIme) errs.push(`Delavec (Drugo): Vpiši ime!`);
+            if (name.startsWith('Drugo') && !d.drugoIme) errs.push(`Delavec (${name}): Vpiši ime!`);
         });
 
         Object.entries(formData.selectedVozila).forEach(([name, d]) => {
@@ -456,7 +460,7 @@ function App() {
         payload.visine = formData.storitevVisine.map((v, i) => v.selected ? `${formatNum(v.kolicina || 0)}x ${visLabels[i]}` : null).filter(Boolean).join('||');
 
         let dIdx = 1; Object.entries(formData.selectedDelavci).forEach(([n, d]) => {
-            if(dIdx>15) return; payload[`delavec${dIdx}`] = n==='Drugo'?d.drugoIme:n; payload[`delavec${dIdx}Ure`] = timeToDec(d.ure, d.minute); payload[`delavec${dIdx}Enota`] = 'ur'; dIdx++;
+            if(dIdx>15) return; payload[`delavec${dIdx}`] = n.startsWith('Drugo') ? d.drugoIme : n; payload[`delavec${dIdx}Ure`] = timeToDec(d.ure, d.minute); payload[`delavec${dIdx}Enota`] = 'ur'; dIdx++;
         });
 
         let vIdx = 1; Object.entries(formData.selectedVozila).forEach(([n, d]) => {
@@ -562,9 +566,9 @@ function App() {
                                                value={formData.storitevVisine[idx].kolicina}
                                                onClick={e => e.preventDefault()}
                                                onChange={(e) => {
-                                                    const newV = [...formData.storitevVisine];
-                                                    newV[idx].kolicina = e.target.value;
-                                                    updateField('storitevVisine', newV);
+                                                   const newV = [...formData.storitevVisine];
+                                                   newV[idx].kolicina = e.target.value;
+                                                   updateField('storitevVisine', newV);
                                                }} />
                                     }
                                 </label>
@@ -647,7 +651,7 @@ function App() {
                 {Object.entries(formData.selectedDelavci).map(([name, data]) => (
                     <div key={name} className="fade-in" style={{display:'flex', gap: 12, marginBottom: 12, alignItems: 'center'}}>
                         <div style={{flex: 1, fontWeight: 500}}>
-                            {name === 'Drugo' ? <input placeholder="Vpiši ime..." value={data.drugoIme} onChange={e => handleUpdate('selectedDelavci', name, 'drugoIme', e.target.value)} className={validationErrors.length && !data.drugoIme ? 'error' : ''} /> : name}
+                            {name.startsWith('Drugo') ? <input placeholder="Vpiši ime..." value={data.drugoIme} onChange={e => handleUpdate('selectedDelavci', name, 'drugoIme', e.target.value)} className={validationErrors.length && !data.drugoIme ? 'error' : ''} /> : name}
                         </div>
                         <div style={{width: 140}}>
                             <TimeInput ure={data.ure} minute={data.minute} onChangeUre={v => handleUpdate('selectedDelavci', name, 'ure', v)} onChangeMinute={v => handleUpdate('selectedDelavci', name, 'minute', v)} hasError={validationErrors.length && !data.ure && !data.minute} />
@@ -788,7 +792,7 @@ function App() {
                     <label>Podpis odgovornega delavca <span style={{color: 'var(--danger)'}}>*</span></label>
                     <select value={formData.podpisOdgovornega} onChange={e => updateField('podpisOdgovornega', e.target.value)} className={!formData.podpisOdgovornega && !formData.podpisDrugo && validationErrors.length ? 'error' : ''}>
                         <option value="">Izberi ime...</option>
-                        {LISTS.delavci.filter(d => d !== 'Drugo').map(d => <option key={d} value={d}>{d}</option>)}
+                        {LISTS.delavci.filter(d => !d.startsWith('Drugo')).map(d => <option key={d} value={d}>{d}</option>)}
                         <option value="Drugo">Drugo</option>
                     </select>
                     {formData.podpisOdgovornega === 'Drugo' && <input placeholder="Vpiši ime in priimek" value={formData.podpisDrugo} onChange={e => updateField('podpisDrugo', e.target.value)} style={{marginTop: 12}} className={`fade-in ${!formData.podpisDrugo && validationErrors.length ? 'error' : ''}`} />}
