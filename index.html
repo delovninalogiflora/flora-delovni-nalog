@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>FLORA & SPORT - Delovni nalog v11.9</title>
+    <title>FLORA & SPORT - Delovni nalog v11.11</title>
     
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -104,7 +104,7 @@
 <script type="text/babel">
 const { useState, useEffect, useRef } = React;
 
-// --- POMEMBNO: TUKAJ PRILEPI SVOJ NOVI URL IZ APPS SCRIPTA ---
+// --- VGRAJEN TVOJ URL ---
 const GOOGLE_SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbxu4N7sx6Nz0YD2hY9SXU_G1TA1Pye9gakNyTsXlfb9aNT_10V9Xl1BZyOznyenAZtu7A/exec';
 
 // --- IKONE ---
@@ -166,7 +166,7 @@ const ULICE = [
 ];
 
 const LISTS = {
-    narocniki: ['Mestna Občina Kranj', 'Občina Šenčur', 'Drugo'],
+    narocniki: ['Mestna Občina Kranj', 'Občina Šenčur', 'Komunala Kranj', 'Drugo'],
     storitve: [
         'mok01 Sajenje cvetja v grede', 'mok02 Sajenje trajnic in vrtnic', 'mok03 Zasaditev korit',
         'mok04-06 Oskrba cvetja in trajnic', 'mok07-09 Oskrba grmovnic in živih mej', 'mok10 Zasaditev živih mej',
@@ -184,13 +184,9 @@ const LISTS = {
         '12. Drulovka', '13. Savska', '14. Rudija Šeliga', '15. Brdo', 'Drugo'
     ],
     delavci: [
-        'Andrej KREK', 'Anja STANONIK', 'Bine KUMER', 'Blaž ŠORLI', 'Boštjan BIZJAK', 
-        'Dejan PETKOVSKI', 'Edvard SAJOVIC', 'Jure UDIR', 'Mitja POTOČNIK', 
-        'Nabin THAPA', 'Robert ERDELJEC', 'Sanel DJURKOVIĆ TAVČAR', 'Simon REPNIK', 
-        'Sonam THAPA', 'Tomaž KOŽELJ', 'Uroš PINTAR', 'Zoran MIČANOVIĆ', 'Zoran STRUPI', 
-        'Žiga PAVLIN',
-        'PAUNOVSKI 1', 'PAUNOVSKI 2', 'PAUNOVSKI 3', 'PAUNOVSKI 4',
-        'Delavec 1', 'Delavec 2', 'Delavec 3'
+        'Anja STANONIK', 'Bine KUMER', 'Boštjan BIZJAK', 'David ZAVRL', 'Dejan PETKOVSKI', 
+        'Mitja POTOČNIK', 'Robert ERDELJEC', 'Simon REPNIK', 'Uroš PINTAR', 'Zoran MIČANOVIĆ', 
+        'Zoran STRUPI', 'PAUNOVSKI 1', 'PAUNOVSKI 2', 'PAUNOVSKI 3', 'PAUNOVSKI 4', 'Drugo'
     ],
     vozila: [
         'KR AA-131 Master Cerada', 'KR AF-471 Master', 'KR GS-288 Master', 
@@ -291,14 +287,14 @@ const INITIAL_STATE = {
 };
 
 function App() {
-    const loadState = () => { const saved = localStorage.getItem('dn_flora_state_v11_9'); return saved ? JSON.parse(saved) : INITIAL_STATE; };
+    const loadState = () => { const saved = localStorage.getItem('dn_flora_state_v11_11'); return saved ? JSON.parse(saved) : INITIAL_STATE; };
     const [formData, setFormData] = useState(loadState);
     const [status, setStatus] = useState({ type: '', text: '' });
     const [loading, setLoading] = useState(false);
     const [validationErrors, setValidationErrors] = useState([]);
     const datePickerRef = useRef(null);
 
-    useEffect(() => { localStorage.setItem('dn_flora_state_v11_9', JSON.stringify(formData)); }, [formData]);
+    useEffect(() => { localStorage.setItem('dn_flora_state_v11_11', JSON.stringify(formData)); }, [formData]);
 
     useEffect(() => {
         if (datePickerRef.current) {
@@ -379,7 +375,7 @@ function App() {
         delavciKeys.forEach(name => {
             const d = formData.selectedDelavci[name];
             if (!d.ure && !d.minute) errs.push(`Delavec (${name}): Vpiši ure ali minute!`);
-            if (name.startsWith('Delavec') && !d.drugoIme) errs.push(`Delavec (${name}): Vpiši ime!`);
+            if (name === 'Drugo' && !d.drugoIme) errs.push(`Delavec (Drugo): Vpiši ime!`);
         });
 
         Object.entries(formData.selectedVozila).forEach(([name, d]) => {
@@ -402,7 +398,7 @@ function App() {
         });
         
         if (!formData.podpisOdgovornega) errs.push('Podpis odgovornega delavca je obvezen.');
-        else if (formData.podpisOdgovornega.startsWith('Delavec') && !formData.podpisDrugo) errs.push('Podpis odgovornega: Vpiši ime in priimek.');
+        else if (formData.podpisOdgovornega === 'Drugo' && !formData.podpisDrugo) errs.push('Podpis odgovornega: Vpiši ime in priimek.');
 
         return errs;
     };
@@ -449,7 +445,7 @@ function App() {
             obmocjeKoncano: formData.obmocjeKoncano.map(o => o.obmocje === 'Drugo' ? o.drugo : o.obmocje).filter(Boolean).join(', '),
             obmocjeNedokoncano: formData.obmocjeNedokoncano.map(o => o.obmocje === 'Drugo' ? o.drugo : o.obmocje).filter(Boolean).join(', '),
             opombe: formData.opombe,
-            podpis: formData.podpisOdgovornega.startsWith('Delavec') ? formData.podpisDrugo : formData.podpisOdgovornega,
+            podpis: formData.podpisOdgovornega === 'Drugo' ? formData.podpisDrugo : formData.podpisOdgovornega,
             
             storitevKolicina: formData.storitevKolicina || '',
             parki: formData.storitevParki.join('||'),
@@ -460,7 +456,7 @@ function App() {
         payload.visine = formData.storitevVisine.map((v, i) => v.selected ? `${formatNum(v.kolicina || 0)}x ${visLabels[i]}` : null).filter(Boolean).join('||');
 
         let dIdx = 1; Object.entries(formData.selectedDelavci).forEach(([n, d]) => {
-            if(dIdx>15) return; payload[`delavec${dIdx}`] = n.startsWith('Delavec') ? d.drugoIme : n; payload[`delavec${dIdx}Ure`] = timeToDec(d.ure, d.minute); payload[`delavec${dIdx}Enota`] = 'ur'; dIdx++;
+            if(dIdx>15) return; payload[`delavec${dIdx}`] = n==='Drugo'?d.drugoIme:n; payload[`delavec${dIdx}Ure`] = timeToDec(d.ure, d.minute); payload[`delavec${dIdx}Enota`] = 'ur'; dIdx++;
         });
 
         let vIdx = 1; Object.entries(formData.selectedVozila).forEach(([n, d]) => {
@@ -566,9 +562,9 @@ function App() {
                                                value={formData.storitevVisine[idx].kolicina}
                                                onClick={e => e.preventDefault()}
                                                onChange={(e) => {
-                                                   const newV = [...formData.storitevVisine];
-                                                   newV[idx].kolicina = e.target.value;
-                                                   updateField('storitevVisine', newV);
+                                                    const newV = [...formData.storitevVisine];
+                                                    newV[idx].kolicina = e.target.value;
+                                                    updateField('storitevVisine', newV);
                                                }} />
                                     }
                                 </label>
@@ -651,7 +647,7 @@ function App() {
                 {Object.entries(formData.selectedDelavci).map(([name, data]) => (
                     <div key={name} className="fade-in" style={{display:'flex', gap: 12, marginBottom: 12, alignItems: 'center'}}>
                         <div style={{flex: 1, fontWeight: 500}}>
-                            {name.startsWith('Delavec') ? <input placeholder="Vpiši ime..." value={data.drugoIme} onChange={e => handleUpdate('selectedDelavci', name, 'drugoIme', e.target.value)} className={validationErrors.length && !data.drugoIme ? 'error' : ''} /> : name}
+                            {name === 'Drugo' ? <input placeholder="Vpiši ime..." value={data.drugoIme} onChange={e => handleUpdate('selectedDelavci', name, 'drugoIme', e.target.value)} className={validationErrors.length && !data.drugoIme ? 'error' : ''} /> : name}
                         </div>
                         <div style={{width: 140}}>
                             <TimeInput ure={data.ure} minute={data.minute} onChangeUre={v => handleUpdate('selectedDelavci', name, 'ure', v)} onChangeMinute={v => handleUpdate('selectedDelavci', name, 'minute', v)} hasError={validationErrors.length && !data.ure && !data.minute} />
@@ -792,9 +788,10 @@ function App() {
                     <label>Podpis odgovornega delavca <span style={{color: 'var(--danger)'}}>*</span></label>
                     <select value={formData.podpisOdgovornega} onChange={e => updateField('podpisOdgovornega', e.target.value)} className={!formData.podpisOdgovornega && !formData.podpisDrugo && validationErrors.length ? 'error' : ''}>
                         <option value="">Izberi ime...</option>
-                        {LISTS.delavci.map(d => <option key={d} value={d}>{d}</option>)}
+                        {LISTS.delavci.filter(d => d !== 'Drugo').map(d => <option key={d} value={d}>{d}</option>)}
+                        <option value="Drugo">Drugo</option>
                     </select>
-                    {formData.podpisOdgovornega.startsWith('Delavec') && <input placeholder="Vpiši ime in priimek" value={formData.podpisDrugo} onChange={e => updateField('podpisDrugo', e.target.value)} style={{marginTop: 12}} className={`fade-in ${!formData.podpisDrugo && validationErrors.length ? 'error' : ''}`} />}
+                    {formData.podpisOdgovornega === 'Drugo' && <input placeholder="Vpiši ime in priimek" value={formData.podpisDrugo} onChange={e => updateField('podpisDrugo', e.target.value)} style={{marginTop: 12}} className={`fade-in ${!formData.podpisDrugo && validationErrors.length ? 'error' : ''}`} />}
                 </div>
 
                 {status.text && status.type === 'error' && <div className="fade-in error-summary" style={{textAlign: 'center'}}>{status.text}</div>}
