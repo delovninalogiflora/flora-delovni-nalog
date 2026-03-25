@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>FLORA & SPORT - Delovni nalog v11.11</title>
+    <title>FLORA & SPORT - Delovni nalog v11.12</title>
     
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -104,7 +104,7 @@
 <script type="text/babel">
 const { useState, useEffect, useRef } = React;
 
-// --- VGRAJEN TVOJ URL ---
+// --- POMEMBNO: TUKAJ PRILEPI SVOJ NOVI URL IZ APPS SCRIPTA ---
 const GOOGLE_SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbxu4N7sx6Nz0YD2hY9SXU_G1TA1Pye9gakNyTsXlfb9aNT_10V9Xl1BZyOznyenAZtu7A/exec';
 
 // --- IKONE ---
@@ -287,14 +287,14 @@ const INITIAL_STATE = {
 };
 
 function App() {
-    const loadState = () => { const saved = localStorage.getItem('dn_flora_state_v11_11'); return saved ? JSON.parse(saved) : INITIAL_STATE; };
+    const loadState = () => { const saved = localStorage.getItem('dn_flora_state_v11_12'); return saved ? JSON.parse(saved) : INITIAL_STATE; };
     const [formData, setFormData] = useState(loadState);
     const [status, setStatus] = useState({ type: '', text: '' });
     const [loading, setLoading] = useState(false);
     const [validationErrors, setValidationErrors] = useState([]);
     const datePickerRef = useRef(null);
 
-    useEffect(() => { localStorage.setItem('dn_flora_state_v11_11', JSON.stringify(formData)); }, [formData]);
+    useEffect(() => { localStorage.setItem('dn_flora_state_v11_12', JSON.stringify(formData)); }, [formData]);
 
     useEffect(() => {
         if (datePickerRef.current) {
@@ -437,11 +437,16 @@ function App() {
             return dec === 0 ? '' : dec.toFixed(2).replace('.', ',');
         };
 
+        const izbranNarocnik = formData.narocnik === 'Drugo' ? formData.narocnikDrugo : formData.narocnik;
+        const izbranaStoritev = formData.storitev === 'Drugo' || formData.storitev.includes('Nepredvidena') ? (formData.storitevDrugo || formData.storitev) : formData.storitev;
+        const kratkaStoritev = formData.storitev.split(' ')[0]; // npr. mok01
+
         const payload = {
-            imeNaloga: `${formData.datum} ${formData.storitev.split(' ')[0]}`,
-            narocnik: formData.narocnik === 'Drugo' ? formData.narocnikDrugo : formData.narocnik,
+            // SPREMEMBA: Ime datoteke in zadeva v e-mailu zdaj vsebuje Naročnika pred datumom in storitvijo
+            imeNaloga: `${izbranNarocnik} ${formData.datum} ${kratkaStoritev}`,
+            narocnik: izbranNarocnik,
             datum: formData.datum,
-            storitev: formData.storitev === 'Drugo' || formData.storitev.includes('Nepredvidena') ? (formData.storitevDrugo || formData.storitev) : formData.storitev,
+            storitev: izbranaStoritev,
             obmocjeKoncano: formData.obmocjeKoncano.map(o => o.obmocje === 'Drugo' ? o.drugo : o.obmocje).filter(Boolean).join(', '),
             obmocjeNedokoncano: formData.obmocjeNedokoncano.map(o => o.obmocje === 'Drugo' ? o.drugo : o.obmocje).filter(Boolean).join(', '),
             opombe: formData.opombe,
@@ -490,7 +495,7 @@ function App() {
 
             setTimeout(() => {
                 setLoading(false); setStatus({ type: 'success', text: '✅ Uspešno poslano v sistem!' });
-                localStorage.removeItem('dn_flora_state_v11_9'); 
+                localStorage.removeItem('dn_flora_state_v11_12'); 
                 
                 setTimeout(() => { 
                     if(confirm('Nalog je shranjen! Želiš začeti znova?')) { 
