@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>FLORA & SPORT - Delovni nalog v11.12</title>
+    <title>FLORA & SPORT - Delovni nalog v11.14</title>
     
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -184,9 +184,29 @@ const LISTS = {
         '12. Drulovka', '13. Savska', '14. Rudija Šeliga', '15. Brdo', 'Drugo'
     ],
     delavci: [
-        'Anja STANONIK', 'Bine KUMER', 'Boštjan BIZJAK', 'David ZAVRL', 'Dejan PETKOVSKI', 
-        'Mitja POTOČNIK', 'Robert ERDELJEC', 'Simon REPNIK', 'Uroš PINTAR', 'Zoran MIČANOVIĆ', 
-        'Zoran STRUPI', 'PAUNOVSKI 1', 'PAUNOVSKI 2', 'PAUNOVSKI 3', 'PAUNOVSKI 4', 'Drugo'
+        'ANDREJ Krek',
+        'ANJA Stanonik',
+        'BINE Kumer',
+        'BLAŽ Šorli',
+        'BOŠTJAN Bizjak',
+        'DAVID Zavrl',
+        'DEJAN Petkovski',
+        'EDVARD Sajovic',
+        'JURE Udir',
+        'MITJA Potočnik',
+        'ROBERT Erdeljec',
+        'SIMON Repnik',
+        'SONAM Thapa',
+        'TOMAŽ Koželj',
+        'UROŠ Pintar',
+        'ZORAN Mičanović',
+        'ZORAN Strupi',
+        'ŽIGA Pavlin',
+        'Paunovski 1',
+        'Paunovski 2',
+        'Paunovski 3',
+        'Paunovski 4',
+        'Drugo'
     ],
     vozila: [
         'KR AA-131 Master Cerada', 'KR AF-471 Master', 'KR GS-288 Master', 
@@ -287,14 +307,14 @@ const INITIAL_STATE = {
 };
 
 function App() {
-    const loadState = () => { const saved = localStorage.getItem('dn_flora_state_v11_12'); return saved ? JSON.parse(saved) : INITIAL_STATE; };
+    const loadState = () => { const saved = localStorage.getItem('dn_flora_state_v11_14'); return saved ? JSON.parse(saved) : INITIAL_STATE; };
     const [formData, setFormData] = useState(loadState);
     const [status, setStatus] = useState({ type: '', text: '' });
     const [loading, setLoading] = useState(false);
     const [validationErrors, setValidationErrors] = useState([]);
     const datePickerRef = useRef(null);
 
-    useEffect(() => { localStorage.setItem('dn_flora_state_v11_12', JSON.stringify(formData)); }, [formData]);
+    useEffect(() => { localStorage.setItem('dn_flora_state_v11_14', JSON.stringify(formData)); }, [formData]);
 
     useEffect(() => {
         if (datePickerRef.current) {
@@ -442,7 +462,6 @@ function App() {
         const kratkaStoritev = formData.storitev.split(' ')[0]; // npr. mok01
 
         const payload = {
-            // SPREMEMBA: Ime datoteke in zadeva v e-mailu zdaj vsebuje Naročnika pred datumom in storitvijo
             imeNaloga: `${izbranNarocnik} ${formData.datum} ${kratkaStoritev}`,
             narocnik: izbranNarocnik,
             datum: formData.datum,
@@ -495,7 +514,7 @@ function App() {
 
             setTimeout(() => {
                 setLoading(false); setStatus({ type: 'success', text: '✅ Uspešno poslano v sistem!' });
-                localStorage.removeItem('dn_flora_state_v11_12'); 
+                localStorage.removeItem('dn_flora_state_v11_14'); 
                 
                 setTimeout(() => { 
                     if(confirm('Nalog je shranjen! Želiš začeti znova?')) { 
