@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>FLORA & SPORT - Delovni nalog v11.16</title>
+    <title>FLORA & SPORT - Delovni nalog v11.17</title>
     
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -308,14 +308,14 @@ const INITIAL_STATE = {
 };
 
 function App() {
-    const loadState = () => { const saved = localStorage.getItem('dn_flora_state_v11_16'); return saved ? JSON.parse(saved) : INITIAL_STATE; };
+    const loadState = () => { const saved = localStorage.getItem('dn_flora_state_v11_17'); return saved ? JSON.parse(saved) : INITIAL_STATE; };
     const [formData, setFormData] = useState(loadState);
     const [status, setStatus] = useState({ type: '', text: '' });
     const [loading, setLoading] = useState(false);
     const [validationErrors, setValidationErrors] = useState([]);
     const datePickerRef = useRef(null);
 
-    useEffect(() => { localStorage.setItem('dn_flora_state_v11_16', JSON.stringify(formData)); }, [formData]);
+    useEffect(() => { localStorage.setItem('dn_flora_state_v11_17', JSON.stringify(formData)); }, [formData]);
 
     useEffect(() => {
         if (datePickerRef.current) {
@@ -515,7 +515,7 @@ function App() {
 
             setTimeout(() => {
                 setLoading(false); setStatus({ type: 'success', text: '✅ Uspešno poslano v sistem!' });
-                localStorage.removeItem('dn_flora_state_v11_16'); 
+                localStorage.removeItem('dn_flora_state_v11_17'); 
                 
                 setTimeout(() => { 
                     if(confirm('Nalog je shranjen! Želiš začeti znova?')) { 
